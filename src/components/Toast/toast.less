@@ -1,0 +1,29 @@
+@charset "UTF-8";
+.toast-warp {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    top: 0;
+    right: 0;
+    z-index: 999;
+    .toast-content {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        padding: .5rem .75rem;
+        border-radius: .25rem;
+        text-align: center;
+        background-color: rgba(0, 0, 0, .8);
+        color: #fff;
+        transform: translate(-50%, -50%);
+    }
+
+}
+
+.fade-enter-active, .fade-leave-active {
+    transition: opacity .5s linear;
+}
+
+.fade-enter, .fade-leave-active {
+    opacity: 0
+}
