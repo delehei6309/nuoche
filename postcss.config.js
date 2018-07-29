@@ -4,6 +4,6 @@
 module.exports = {
     plugins: [
         require('precss'),
-        require('autoprefixer')({browsers: ['last 2 versions', 'iOS 7']})
+        require('autoprefixer')({browsers: ['last 4 versions', 'iOS 7']})
     ]
 }

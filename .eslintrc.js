@@ -24,7 +24,15 @@ module.exports = {
         'process': true,
         'console': true,
         'Promise': true,
-        'document': true
+        'history':true,
+        'document': true,
+        'Hybrid':true,
+        'module':true,
+        '__dirname':true,
+        'Uint8Array':true,
+        '_iteratorError':true,
+        'Symbol':true,
+        'wx':true
     },
     // add your custom rules here
     'rules': {

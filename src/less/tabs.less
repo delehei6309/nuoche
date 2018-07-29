@@ -1,5 +1,61 @@
 @charset "UTF-8";
 @import "variables";
+.tabs-warp{
+	height: 100%;
+	.tabs{
+		height:2.5rem;
+		background-color: @tab-bg-color;
+		color:@tab-color;
+		font-size: 0.5rem;
+		.tab{
+			width:3.75rem;
+			.tab-icon{
+				width:1.0rem;
+				height: 1.0rem;
+				background:url("../images/tabs/home.jpg") no-repeat 0 0;
+				background-size: 100%;
+			}
+			&.tab-home{
+				&.tab-active{
+					.tab-icon{
+						background-image:url("../images/tabs/home_hover.jpg");
+					}
+				}
+			}
+			&.tab-shop{
+				.tab-icon{
+					background-image:url("../images/tabs/shop.jpg");
+				}
+				&.tab-active{
+					.tab-icon{
+						background-image:url("../images/tabs/shop_hover.jpg");
+					}
+				}
+				
+			}
+			&.tab-find{
+				.tab-icon{
+					background-image:url("../images/tabs/find.jpg");
+				}
+				&.tab-active{
+					.tab-icon{
+						background-image:url("../images/tabs/find_hover.jpg");
+					}
+				}
+			}
+			&.tab-person{
+				.tab-icon{
+					background-image:url("../images/tabs/person.jpg");
+				}
+				&.tab-active{
+					.tab-icon{
+						background-image:url("../images/tabs/person_hover.jpg");
+					}
+				}
+			}
 
+		}
+	}
+}
 
 
