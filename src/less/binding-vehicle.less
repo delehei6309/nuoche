@@ -1,0 +1,54 @@
+.binding-vehicle{
+	padding:0.8rem 0.6rem;
+	position: relative;
+	.bingding-gou{
+
+		span{
+			display: block;
+			width:0.6rem;
+			height:2.12rem;
+			position: absolute;
+			top:0;
+			left:1.75rem;
+			&:after,&:before{
+				content: "";
+				display: block;
+				position: absolute;
+			}
+			&:after{
+				width: 0.6rem;
+				height:0.6rem;
+				border-radius: 50%;
+				background-color: #868896;
+				left:0;
+				bottom:0;
+				z-index: 2;
+			}
+			&:before{
+				height:1.95rem;
+				width:0.2rem;
+				background-color:#dadcea;
+				border-radius: 0 0 0.1rem 0.1rem;
+				top:0;
+				left:50%;
+				transform: translateX(-50%);
+				z-index: 3;
+			}
+			&.bingding-gou-right{
+				left:auto;
+				right:1.75rem;
+			}
+		}
+	}
+	.binding-vehicle-cont{
+		background-color:#fff;
+		padding:0 0.85rem;
+		border-radius: 0.2rem;
+		.b-v-title{
+			line-height: 1em;
+			font-size: 0.9rem;
+			padding:0.7rem 0;
+			text-align: center;
+		}
+	}
+}

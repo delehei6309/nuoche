@@ -8,6 +8,7 @@ const Shop = resolve => require(['../containers/Shop'], resolve);
 const ShopDetail = resolve => require(['../containers/ShopDetail'], resolve);
 const Find = resolve => require(['../containers/Find'], resolve);
 const Person = resolve => require(['../containers/Person'], resolve);
+const BindingVehicle = resolve => require(['../containers/BindingVehicle'], resolve);
 let routes = [
     {
         path: '/base',
@@ -62,6 +63,13 @@ let routes = [
             title:'商品详情'
         },
         component: ShopDetail
+    },{
+        path:'/binding-vehicle',
+        name:'binding-vehicle',
+        meta:{
+            title:'绑定车辆'
+        },
+        component: BindingVehicle
     }
 ];
 routes.push({
