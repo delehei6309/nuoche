@@ -1,6 +1,6 @@
 <template>
-    <div class="base">
-        personll
+    <div class="person">
+        <img src="../images/person.jpg">
     </div>
 </template>
 

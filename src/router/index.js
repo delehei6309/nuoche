@@ -9,6 +9,7 @@ const ShopDetail = resolve => require(['../containers/ShopDetail'], resolve);
 const Find = resolve => require(['../containers/Find'], resolve);
 const Person = resolve => require(['../containers/Person'], resolve);
 const BindingVehicle = resolve => require(['../containers/BindingVehicle'], resolve);
+const NuocheInform = resolve => require(['../containers/NuocheInform'], resolve);
 let routes = [
     {
         path: '/base',
@@ -70,6 +71,13 @@ let routes = [
             title:'绑定车辆'
         },
         component: BindingVehicle
+    },{
+        path:'/nuoche-inform',
+        name:'nuoche-inform',
+        meta:{
+            title:'挪车通知'
+        },
+        component: NuocheInform
     }
 ];
 routes.push({

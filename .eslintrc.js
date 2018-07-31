@@ -32,7 +32,8 @@ module.exports = {
         'Uint8Array':true,
         '_iteratorError':true,
         'Symbol':true,
-        'wx':true
+        'wx':true,
+        'qq':true
     },
     // add your custom rules here
     'rules': {

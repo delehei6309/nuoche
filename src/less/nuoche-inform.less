@@ -1,0 +1,104 @@
+.nuoche-inform{
+	padding:0.75rem 0.6rem;
+	.inform-plate{
+		
+		height:6.0rem;
+		background:url("../images/home/car_numBg.png") no-repeat 0 0;
+		background-size:100% 100%;
+		position: relative;
+		margin-bottom: 0.5rem;
+		.plate-num{
+			font-size: 1.35rem;
+			padding-top:2.7rem;
+			line-height: 1em;
+			font-weight: 700;
+		}
+		.bingding-gou{
+
+			.span-up{
+				display: block;
+				width:0.2rem;
+				height:2.25rem;
+				position: absolute;
+				top:-0.75rem;
+				left:1.2rem;
+				z-index: 7;
+				background-color:#dadcea;
+				&:after,&:before{
+					content: "";
+					display: block;
+					position: absolute;
+					z-index: 6;
+				}
+				&:after{
+					width: 0.6rem;
+					height:0.6rem;
+					border-radius: 50%;
+					background-color: #868896;
+					left:50%;
+					bottom:-0.15rem;
+					transform: translateX(-50%);
+					z-index: 2;
+				}
+				// &:before{
+				// 	height:1.95rem;
+				// 	width:0.2rem;
+				// 	background-color:#dadcea;
+				// 	border-radius: 0 0 0.1rem 0.1rem;
+				// 	top:0;
+				// 	left:50%;
+				// 	transform: translateX(-50%);
+				// 	z-index: 3;
+				// }
+				&.bingding-gou-2{
+					left:auto;
+					right:1.2rem;
+				}
+			}
+		}
+	}
+	.plate-contact{
+		border-radius: 0.2rem;
+		background-color:#fff;
+		padding:1.25rem 0.9rem 2.08rem;
+		margin-bottom: 0.75rem;
+		.plate-icon{
+			padding-bottom: 0.9rem;
+			font-size: 0;
+			img{
+				width:3.83rem;
+				height: 3.83rem;
+			}
+		}
+		dl{
+			text-align: center;
+			margin-bottom: 1.0rem;
+			dt{
+				font-size:1.0rem;
+				line-height: 1em;
+				margin-bottom: 0.5rem;
+			}
+			dd{
+				color:#8a8b9b;
+				font-size: 0.65rem;
+			}
+		}
+		.btn{
+			button{
+				width:100%;
+				height: 2.25rem;
+				font-size: 0.8rem;
+				color:#fff;
+				border:none;
+				background:linear-gradient(to right,#3e4048,#010101);
+				border-radius: 0;
+				box-shadow: 0 0 0.75rem rgba(0,0,0,.6);
+			}
+		}
+	}
+	.img-box{
+		border-radius: 0.2rem;
+		overflow: hidden;
+	}
+
+}

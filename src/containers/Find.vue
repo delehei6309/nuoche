@@ -1,6 +1,6 @@
 <template>
-    <div class="base">
-        find33
+    <div class="find">
+        <img src="../images/find.jpg">
     </div>
 </template>
 
