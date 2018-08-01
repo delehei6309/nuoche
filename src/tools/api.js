@@ -1,5 +1,5 @@
 /**
- * Created by hekk on 2017/7/23.
+ * Created by chunting on 2018/8/1.
  */
 import Promise from 'promise-polyfill';
 
@@ -38,10 +38,9 @@ let get = (path, data = {}) => {
     let url = `${serverUrl + path}?t=${t}&${$query(data)}`
     return fetch(url, {
         method: 'get',
-        credentials: 'include',
+        //credentials: 'include',
         headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/json'
         }
     }).then(response => {
         if (response.status == 200) {
@@ -62,10 +61,9 @@ let post = (path, data = {}) => {
 
     return fetch(url, {
         method: 'post',
-        credentials: 'include',
+        //credentials: 'include',
         headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/json'
         },
         body: $query(data)
     }).then(response => {

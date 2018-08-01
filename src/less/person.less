@@ -1,0 +1,141 @@
+.person{
+	.person-header{
+		height:5.0rem;
+		background:url("../images/person/person_topBg.jpg") 0 0;
+		background-size: 3.15rem;
+		padding:0 0.6rem;
+		position: relative;
+		dl{
+			dt{
+				width:3.0rem;
+				height:3.0rem;
+				border-radius: 50%;
+				border:0.15rem solid #d6d9e2;
+				overflow: hidden;
+				margin-right:0.5rem;
+			}
+			dd{
+				.user-name{
+					color:#fff;
+					font-size: 0.75rem;
+				}
+				.time{
+					color:#bdc0cb;
+					font-size: 0.57rem;
+				}
+			}
+		}
+		.person-setting{
+			width:0.9rem;
+			height:0.85rem;
+			background:url("../images/person/setting.png") no-repeat 0 0;
+			background-size: 100%;
+			position: absolute;
+			right:0.6rem;
+			top:0.88rem;
+
+		}
+	}
+	.remarks{
+		height:1.5rem;
+		padding:0 0.6rem;
+		font-size: 0.6rem;
+		background-color: #f7eed6;
+		dl{
+			dd{
+				width:0.45rem;
+				height:0.45rem;
+				background:url("../images/person/close.png") no-repeat 0 0;
+				background-size: 100%;
+			}
+		}
+	}
+	.person-list{
+		margin-top:0.5rem;
+		ul{
+			background-color:#fff;
+			margin-bottom: 0.5rem;
+			li{
+				height:2.5rem;
+				position: relative;
+				background: url("../images/person/disturb.jpg") no-repeat 0.6rem 50%;
+				background-size: 0.85rem;
+				padding:0 0.6rem 0 1.93rem;
+				&:after{
+					content:"";
+					display: block;
+					width:100%;
+					height:1px;
+					background-color:#f6f8fa;
+					position: absolute;
+					bottom:0;
+					left:0;
+					transform: scaleY(.5);
+				}
+				.switch{
+					width:2.55rem;
+					height:1.57rem;
+					background-color:#2d2f46;
+					border-radius: 0.78rem;
+					padding:0.1rem;
+					position: relative;
+					transition: all .3s;
+					&:after{
+						content:"";
+						display: block;
+						width:1.4rem;
+						height:1.4rem;
+						border-radius: 50%;
+						background-color:#fff;
+						
+						float: right;
+					}
+					&.switch-closed{
+						background-color:rgba(163, 163, 163, 0.1);
+						&:after{
+							float: left;
+						}
+					}
+				}
+				&.my-infor,&.my-record{
+					background-image: url("../images/person/message.jpg");
+				}
+				&.my-order{
+					background-image: url("../images/person/order.jpg");
+				}
+				&.my-code{
+					background-image: url("../images/person/record.jpg");
+				}
+				&.my-about{
+					background-image: url("../images/person/about.jpg");
+				}
+				&:not(.darao){
+					&:before{
+						content:"";
+						width:0.35rem;
+						height:0.65rem;
+						background:url("../images/person/05.jpg") no-repeat 0 0;
+						background-size: 100%;
+						position: absolute;
+						right:0.6rem;
+						top:50%;
+						transform: translateY(-50%);
+					}
+				}
+			}
+		}
+	}
+	.service{
+		color:#d0d0d0;
+		font-size: 0.6rem;
+		padding-bottom:0.75rem;
+		.service-icon{
+			width:0.68rem;
+			height:0.68rem;
+			margin-right: 0.25rem;
+		}
+	}
+}
+
+
+

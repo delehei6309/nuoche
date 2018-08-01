@@ -17,3 +17,12 @@ export let setTitle = (title) => {
         document.body.appendChild(iframe);
     }, 0);
 };
+export let checkPhone = (phone) => {
+    console.log(phone)
+    let regPhone = /^(0|86|17951)?(1)[0-9]{10}$/;
+    if(regPhone.test(phone)){
+        return true;
+    }else{
+        return false;
+    }
+};

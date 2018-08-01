@@ -6,13 +6,13 @@
                 <dl flex>
                     <dt>手机号：</dt>
                     <dd>
-                        <input type="text" name="" placeholder="请输入您的手机号" maxlength="11">
+                        <input type="text" name="" placeholder="请输入您的手机号" maxlength="11" v-model="phoneNumber">
                     </dd>
                 </dl>
                 <dl flex class="captcha">
                     <dt flex-box="0">验证码：</dt>
                     <dd flex-box="1">
-                        <input type="text" name="" placeholder="请输入您的验证码" maxlength="6">
+                        <input type="text" name="" placeholder="请输入您的验证码" maxlength="6" v-model="captchaNum">
                     </dd>
                     <dd flex-box="0">
                         <button @click.stop="captcha" :disabled="captchaLoading">{{captchaBtnTxt}}</button>
@@ -29,12 +29,12 @@
                         </span>
                     </dt>
                     <dd flex-box="1">
-                        <input type="text" name="" placeholder="请输入您的车牌号" maxlength="5">
+                        <input type="text" name="" placeholder="请输入您的车牌号" maxlength="5" v-model="carId">
                     </dd>
                 </dl>
             </div>
             <div flex="main:center" class="btn">
-                <button>立即绑定</button>
+                <button @click.stop="submit">立即绑定</button>
             </div>
         </div>
         <div class="bingding-gou">
@@ -46,11 +46,17 @@
 
 <script>
     import '../less/binding-vehicle.less';
+    import $api from '../tools/api';
+    import { checkPhone } from '../tools/operation';
+    import Toast from '../components/Toast';
     export default {
         name: 'binding-vehicle',
         data(){
             return {
+                phoneNumber:'',
+                captchaNum:'',
                 plate:'jingA',
+                carId:'',
                 plateItems:[
                     {
                         value:"jingA",
@@ -65,7 +71,8 @@
                 ],
                 captchaBtnTxt:'发送验证码',
                 captchaLoading:false,
-                timer:null
+                timer:null,
+                submiting:false
             }
         },
         created(){
@@ -78,6 +85,11 @@
         methods: {
             //发送验证码
             captcha(){
+                let { phoneNumber } = this;
+                if(!checkPhone(phoneNumber)){
+                    Toast('请填写有效的手机号码！');
+                    return false;
+                }
                 if(this.timer){
                     clearTimeout(this.timer);
                 }
@@ -97,6 +109,32 @@
                     this.captchaLoading = false;
                 }
                 
+            },
+            //绑定
+            submit(){
+                let {
+                    phoneNumber,
+                    captchaNum,
+                    plate,carId
+                } = this;
+                if(!checkPhone(phoneNumber)){
+                    Toast('请填写有效的手机号码！');
+                    return false;
+                }
+                if(!captchaNum.trim()){
+                    Toast('请填写验证码！');
+                    return false;
+                }
+                if(!carId.trim()){
+                    Toast('请填车牌号！');
+                    return false;
+                }
+                this.submiting = true;//避免重复提交
+                $api.post('/user/code/bindCode',{
+
+                }).then(res => {
+
+                })
             }
         },
         destroyed(){

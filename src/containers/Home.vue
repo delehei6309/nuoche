@@ -20,6 +20,8 @@
 
 <script>
     import '../less/home.less';
+    import wx from '../tools/wx';
+    const markIcon = require('../images/home/marker-icon1.png');
     export default {
         name: 'home',
         data(){
@@ -28,6 +30,12 @@
             }
         },
         created(){
+            wx.config({
+                appId: '2222',
+                timestamp: 122345,
+                nonceStr: 'llllll',
+                signature: '33333',
+            });
         },
         computed: {
         },
@@ -51,10 +59,10 @@
                         map: map,
                     });
                     let anchor = new qq.maps.Point(0, 0),
-                        size = new qq.maps.Size(42, 68),
+                        size = new qq.maps.Size(57, 57),
                         origin = new qq.maps.Point(0, 0),
                         markerIcon = new qq.maps.MarkerImage(
-                            "http://shengri.cn/img/backup.png",
+                            markIcon,
                             size, 
                             origin,
                             anchor
@@ -68,6 +76,9 @@
                 this.$router.push({
                     path:'/binding-vehicle'
                 });
+                // wx.scanQRCode(()=>{
+                //     //扫码回调
+                // });
             }
         },
         mounted(){

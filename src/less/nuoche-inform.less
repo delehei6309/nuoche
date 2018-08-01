@@ -15,43 +15,84 @@
 		}
 		.bingding-gou{
 
-			.span-up{
+			span{
 				display: block;
-				width:0.2rem;
-				height:2.25rem;
+				width:0.6rem;
+				height:2.38rem;
 				position: absolute;
-				top:-0.75rem;
+				top:-.75rem;
 				left:1.2rem;
-				z-index: 7;
-				background-color:#dadcea;
 				&:after,&:before{
 					content: "";
 					display: block;
 					position: absolute;
-					z-index: 6;
 				}
 				&:after{
 					width: 0.6rem;
 					height:0.6rem;
 					border-radius: 50%;
 					background-color: #868896;
-					left:50%;
-					bottom:-0.15rem;
-					transform: translateX(-50%);
+					left:0;
+					bottom:0;
 					z-index: 2;
 				}
-				// &:before{
-				// 	height:1.95rem;
-				// 	width:0.2rem;
-				// 	background-color:#dadcea;
-				// 	border-radius: 0 0 0.1rem 0.1rem;
-				// 	top:0;
-				// 	left:50%;
-				// 	transform: translateX(-50%);
-				// 	z-index: 3;
-				// }
-				&.bingding-gou-2{
+				&:before{
+					height:2.25rem;
+					width:0.2rem;
+					background-color:#dadcea;
+					border-radius: 0 0 0.1rem 0.1rem;
+					top:0;
+					left:50%;
+					transform: translateX(-50%);
+					z-index: 3;
+				}
+				&.bingding-gou-right{
 					left:auto;
+					right:1.2rem;
+				}
+			}
+		}
+		.bingding-mao{
+			>div{
+				height:3.88rem;
+				width:.6rem;
+				position: absolute;
+				z-index: 7;
+				bottom:-2.0rem;
+				span{
+					display: block;
+					width:.2rem;
+					height:3.58rem;
+					background-color:#dadcea;
+					border-radius: 0 0 0.1rem 0.1rem;
+					position: absolute;
+					left:50%;
+					top:50%;
+					z-index: 44;
+					transform: translate(-50%,-50%);
+					border-radius: .1rem;
+				}
+				&:after,&:before{
+					content:"";
+					display: block;
+					width:.6rem;
+					height: .6rem;
+					border-radius: 50%;
+					background-color: #868896;
+					position: absolute;
+					left:0;
+					top:0;
+					z-index: 22;
+					
+				}
+				&:after{
+					top:auto;
+					bottom:0;
+				}
+				&.bingding-mao-left{
+					left:1.2rem;
+				}
+				&.bingding-mao-right{
 					right:1.2rem;
 				}
 			}

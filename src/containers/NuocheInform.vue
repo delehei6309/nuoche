@@ -2,13 +2,19 @@
     <div class="nuoche-inform">
         <div class="inform-plate">
             <div class="bingding-gou">
-                <span class="bingding-gou-1 span-up"></span>
-                <span class="bingding-gou-2 span-up"></span>
-                <span class="bingding-gou-3 span-up span-two"></span>
-                <span class="bingding-gou-4 span-up span-two"></span>
+                <span class="bingding-gou-left"></span>
+                <span class="bingding-gou-right"></span>
             </div>
             <div flex="main:center" class="plate-num">
                 <span>京A888888</span>
+            </div>
+            <div class="bingding-mao">
+                <div class="bingding-mao-left">
+                    <span></span>
+                </div>
+                <div class="bingding-mao-right">
+                    <span></span>
+                </div>
             </div>
         </div>
         <div class="plate-contact">
