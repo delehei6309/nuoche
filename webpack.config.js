@@ -14,6 +14,7 @@ let resolve = (dir) => {
     return path.join(__dirname, '..', dir)
 }
 const env = (process.env.NODE_ENV || 'development');
+version = Math.random().toString().substr(2, 6);
 console.log(env);
 
 const config = {
@@ -123,8 +124,8 @@ if (env == 'production' || env == 'test') {
     config.devtool = '';
     if (env === 'production') {
     }
-    config.output.filename = '[name].[chunkhash:8].js';
-    config.output.chunkFilename = '[chunkhash:8].[id].chunk.js';
+    config.output.filename = `[name].[chunkhash:8].${version}..js`;
+    config.output.chunkFilename = `[chunkhash:8].[id].${version}.chunk.js`;
     config.plugins = (config.plugins || []).concat([
         new webpack.DefinePlugin({
             'process.env': {

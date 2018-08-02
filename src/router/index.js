@@ -65,16 +65,16 @@ let routes = [
             title:'商品详情'
         },
         component: ShopDetail
-    },{
+    }/*,{
         path:'/binding-vehicle',
         name:'binding-vehicle',
         meta:{
             title:'绑定车辆'
         },
         component: BindingVehicle
-    },{
-        path:'/binding-code',
-        name:'binding-code',
+    }*/,{
+        path:'/binding',
+        name:'binding',
         meta:{
             title:'绑定挪车码'
         },

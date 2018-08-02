@@ -12,7 +12,7 @@
         <div flex="main:center" class="home-posit">
             <div flex="cross:center" class="posit-wrap">
                 <span>当前位置：</span>
-                <span>北京市海淀区西二旗附近</span>
+                <span>未知</span>
             </div>
         </div>
     </div>
@@ -21,7 +21,9 @@
 <script>
     import '../less/home.less';
     import wx from '../tools/wx';
+    import Toast from '../components/Toast';
     const markIcon = require('../images/home/marker-icon1.png');
+    import jsonp from 'jsonp';
     export default {
         name: 'home',
         data(){
@@ -30,12 +32,8 @@
             }
         },
         created(){
-            wx.config({
-                appId: '2222',
-                timestamp: 122345,
-                nonceStr: 'llllll',
-                signature: '33333',
-            });
+            this.getRoute();
+            this.wxConfig();//微信配置
         },
         computed: {
         },
@@ -43,9 +41,12 @@
 
         },
         methods: {
-            getMap(){
+            getMap(latitude,longitude){
+                latitude = latitude || 39.916527;
+                longitude = longitude || 116.397128;
+                //当前位置文字
                 if(qq){
-                    let center = new qq.maps.LatLng(39.916527,116.397128);
+                    let center = new qq.maps.LatLng(latitude,longitude);
                     let map = new qq.maps.Map(document.getElementById("container"),{
                         //加载地图经纬度信息
                         center,
@@ -73,16 +74,34 @@
                 }
             },
             sao(){
-                this.$router.push({
-                    path:'/binding-vehicle'
-                });
-                // wx.scanQRCode(()=>{
-                //     //扫码回调
+                // this.$router.push({
+                //     path:'/binding?code=01'
                 // });
+                //扫一扫
+                wx.scanQRCode();
+            },
+            wxConfig(){
+                jsonp('http://tt.cpostcard.com/weixinshare/getSign.php?appId=wxd7178c7aa3d7639b', null, (err, data) => {
+                    if (err) {
+                        Toast(err.message);
+                    } else {
+                        wx.config(data);
+                    }
+                });
+            },
+            getRoute(){
+                this.code = this.$route.query.code;
+                if(this.code != '01'){
+                    Toast('这里不能访问！！！')
+                }
             }
         },
         mounted(){
             this.getMap();
+            wx.getdingwei((res) => {
+                let { latitude, longitude } = res;//latitude 纬度
+                this.getMap(latitude, longitude)
+            })
         },
         destroyed(){
 

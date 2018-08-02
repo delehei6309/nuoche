@@ -1,0 +1,20 @@
+//user/code/isBind{code}
+{
+	"code":"01",//01 已绑定，02未绑定，03没有码
+	"msg":"操作成功",
+	"data":{
+		"id":"1",
+		"name":"wang"
+	}
+}
+
+//  user/code/bind
+
+{
+	"code":"01",//01 成功，02失败，03没有码
+	"msg":"操作成功",
+	"data":{
+		"id":"1",
+		"name":"wang"
+	}
+}

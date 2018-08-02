@@ -1,63 +1,83 @@
 <template>
-    <div class="nuoche-inform">
-        <div class="inform-plate">
-            <div class="bingding-gou">
-                <span class="bingding-gou-left"></span>
-                <span class="bingding-gou-right"></span>
-            </div>
-            <div flex="main:center" class="plate-num">
-                <span>京A888888</span>
-            </div>
-            <div class="bingding-mao">
-                <div class="bingding-mao-left">
-                    <span></span>
-                </div>
-                <div class="bingding-mao-right">
-                    <span></span>
-                </div>
-            </div>
-        </div>
-        <div class="plate-contact">
-            <div flex="main:center cross:center" class="plate-icon">
-                <img src="../images/home/stop.png">
-            </div>
-            <dl>
-                <dt>临时停靠 多多关注</dt>
-                <dd>
-                    因事情较忙,停车比较匆忙，如果阻挡了您的爱车通过，您可以点击下方按钮通知我，给您带来的不便敬请谅解
-                </dd>
+    <div>
+        <nuoche-child v-if="status == '01'"></nuoche-child>
+        <div v-if="status == '02'" class="gongzhonghao"  flex="dir:top cross:center main:center">
+            <dl class="">
+                <dt>
+                    <img :src="image">
+                </dt>
+                <dd>长按关注公众号</dd>
             </dl>
-            <div class="btn">
-                <a href="tel:13833881091">
-                    <button>拨打车主电话</button>
-                </a>
-            </div>
-        </div>
-        <div class="img-box">
-            <a href="">
-                <img src="../images/home/ac_bottomBanner.png">
-            </a>
         </div>
     </div>
 </template>
-
+<style lang="less">
+    .gongzhonghao{
+        dl{
+            padding-top: 2.5rem;
+        }
+        dt{
+            img{
+                width:12.5rem;
+                height:12.5rem;
+            }
+        }
+        dd{
+            padding:1rem 0;
+            text-align: center;
+        }
+    }
+</style>
 <script>
-    import '../less/nuoche-inform.less';
+    import NuocheChild from '../components/NuocheChild';
+    import Toast from '../components/Toast';
+    import $api from '../tools/api';
     export default {
         name: 'nuoche-inform',
         data(){
             return {
-
+                status:'02',
+                code:'',
+                image:'',
             }
         },
         created(){
+            this.getWxisBind();
         },
         computed: {
         },
         components:{
-
+            NuocheChild
         },
         methods: {
+            //判断是否关注
+            getWxisBind(){
+                let code = this.$route.query.code;
+                //this.status = '02'
+                $api.get(`wechat/isBind/${code}`,).then( res =>{
+                    if(res.code == '01'){
+                        this.status = res.code;
+                        
+                    }if(res.code == '02'){
+                        this.status = res.code;
+                        this.getImg();
+
+                    }else if(res.code == '03'){
+                        Toast(res.msg);
+                    }
+                });
+            },
+            getImg(){
+                let code = this.$route.query.code;
+                $api.get(`wechat/load/${code}`).then( res =>{
+                    if(res.code == '01'){
+                        this.image = res.data;
+                        
+                    }else if(res.code == '03'){
+                        Toast(res.msg);
+                    }
+                });
+            }
         },
         destroyed(){
 

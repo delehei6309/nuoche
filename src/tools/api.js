@@ -1,83 +1,56 @@
 /**
- * Created by chunting on 2018/8/1.
+ * Created by chunting on 2018/8/3.
  */
-import Promise from 'promise-polyfill';
+import axios from 'axios';
 
-
-// To add to window
-if (!window.Promise) {
-    window.Promise = Promise;
-}
-
-import 'whatwg-fetch';
-const devUrl = 'http://xxx.dev';
-const testUrl = 'https://xxx.test';
-const productionUrl = 'https://xxx.production';
-let serverUrl = devUrl;
-if (process.env.kingold == 'test') {
-    serverUrl = testUrl;
-}
-if (process.env.kingold == 'production') {
-    serverUrl = productionUrl;
-}
-let $query = (data) => {
-    let str = [];
-    for (let key in data) {
-        if (data.hasOwnProperty(key)) {
-            if (typeof data[key] != 'object') {
-                str.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
-            } else {
-                str.push(encodeURIComponent(key) + '=' + encodeURIComponent(JSON.stringify(data[key])));
-            }
-        }
-    }
-    return str.join('&');
-};
-let get = (path, data = {}) => {
-    let t = new Date().getTime();
-    let url = `${serverUrl + path}?t=${t}&${$query(data)}`
-    return fetch(url, {
+//import config from './config.js';
+//console.log(config)
+let serverUrl = '';
+let get = (path, data = {}, source = {}) => {
+    console.log(data)
+    data.t = new Date().getTime();
+    let url = `${serverUrl + path}`
+    return axios({
+        url,
         method: 'get',
-        //credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    }).then(response => {
-        if (response.status == 200) {
-            return response.json()
-        }
-        if (response.status == 503) {
-            return {};
-        }
-        return {};
-    }).catch(err => {
-        console.error('error,--->', err);
-    });
-};
-let post = (path, data = {}) => {
-
-    let t = new Date().getTime();
-    let url = `${serverUrl + path}?t=${t}`;
-
-    return fetch(url, {
-        method: 'post',
-        //credentials: 'include',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: $query(data)
+        params: data,
+        //withCredentials: true
     }).then(response => {
         if (response.status == 200) {
-            return response.json()
-        }
-        if (response.status == 503) {
-            return {};
+            return response.data;
         }
         return {};
     }).catch(err => {
-        console.error('error,--->', err);
-    });
+        console.log('err--->')
+    })
 };
+let post = (path, data = {}) => {
+    let  url = `${serverUrl + path}`;
+    return axios({
+        url,
+        method: 'post',
+        headers: {
+            'Content-Type': 'json'
+        },
+        params: {
+            t: new Date().getTime()
+        },
+        //withCredentials: true,
+        data: data
+    }).then(response => {
+        if (response.status == 200) {
+            return response.data;
+        } else {
+            return {};
+        }
+    }).catch(err => {
+        console.log('err--->')
+    })
+};
+
 const $api = {
     get,
     post,
