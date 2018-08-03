@@ -1,7 +1,7 @@
 <template>
     <div>
-        <nuoche-child v-if="status == '01'"></nuoche-child>
-        <div v-if="status == '02'" class="gongzhonghao"  flex="dir:top cross:center main:center">
+        <nuoche-child></nuoche-child>
+        <div v-show="status == '02'" class="gongzhonghao"  flex="dir:top cross:center main:center">
             <dl class="">
                 <dt>
                     <img :src="image">
@@ -9,6 +9,7 @@
                 <dd>长按关注公众号</dd>
             </dl>
         </div>
+        
     </div>
 </template>
 <style lang="less">
@@ -36,13 +37,13 @@
         name: 'nuoche-inform',
         data(){
             return {
-                status:'02',
+                status:'01',//默认已关注
                 code:'',
-                image:'',
+                image:''
             }
         },
         created(){
-            this.getWxisBind();
+            //this.getWxisBind();
         },
         computed: {
         },
@@ -54,7 +55,8 @@
             getWxisBind(){
                 let code = this.$route.query.code;
                 //this.status = '02'
-                $api.get(`wechat/isBind/${code}`,).then( res =>{
+                console.log('6666666666')
+                $api.get(`/wechat/isBind/${code}`,).then( res =>{
                     if(res.code == '01'){
                         this.status = res.code;
                         
@@ -69,7 +71,7 @@
             },
             getImg(){
                 let code = this.$route.query.code;
-                $api.get(`wechat/load/${code}`).then( res =>{
+                $api.get(`/wechat/load/${code}`).then( res =>{
                     if(res.code == '01'){
                         this.image = res.data;
                         

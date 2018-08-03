@@ -28,12 +28,12 @@
                 </dd>
             </dl>
             <div class="btn">
-                <a v-if="virtual" :href="`tel:${virtual}`">
+                <a :href="`tel:${virtual}`">
                     <button>拨打车主电话</button>
                 </a>
-                <a v-else href="javascript:void(0);" @click.stop="phoneShow = true">
+                <!-- <a v-else href="javascript:void(0);" @>
                     <button>拨打车主电话</button>
-                </a>
+                </a> -->
             </div>
         </div>
         <div class="img-box">
@@ -41,7 +41,7 @@
                 <img src="../../images/home/ac_bottomBanner.png">
             </a>
         </div>
-        <div v-if="phoneShow" flex="main:center cross:center" class="telphone-wrap">
+        <!-- <div v-if="phoneShow" flex="main:center cross:center" class="telphone-wrap">
             <div flex="dir:top" class="telphone-box">
                 <div class="content">
                     <input type="tell" v-model="telphone" placeholder="请先输入您的手机号码" maxlength="11">
@@ -51,7 +51,8 @@
                     <button @click.stop="sure">确定</button>
                 </div>
             </div>
-        </div>
+        </div> -->
+        <loading v-show="loading"></loading>
     </div>
 </template>
 
@@ -59,39 +60,41 @@
     import './nuoche-inform.less';
     import $api from '../../tools/api';
     import { checkPhone, setTitle } from '../../tools/operation';
+    import Loading from '../Loading';
     import Toast from '../Toast';
     export default {
         name: 'nuoche-child',
         data(){
             return {
                 telphone:'',
-                phoneShow:false,
-                virtual:''
+                //phoneShow:false,
+                virtual:'',
+                loading:true
             }
         },
         created(){
+            this.getPhone()
         },
         computed: {
         },
         components:{
-
+            Loading
         },
         methods: {
             cancel(){
                this.telphone = ''; 
                this.phoneShow = false;
             },
-            sure(){
-                let telphone = this.telphone;
+            getPhone(){
                 let code = this.$route.query.code;
-                if(!checkPhone(telphone)){
-                    Toast('手机号输入有误！');
-                    return false;
-                }
-                $api.post(`/call/getVirtualCode/${code}/${telphone}`).then(res => {
+                $api.get(`/call/getVirtualCode/${code}`).then(res => {
+                    this.loading = true;
                     this.virtual = res;
                     this.cancel();
-                    Toast('输入成功，现在可以拨打电话啦！');
+                    setTimeout(()=>{
+                        this.loading = false;
+                        //Toast('输入成功，现在可以拨打电话啦！');
+                    },100);
                 })
             }
         },

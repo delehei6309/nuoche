@@ -10,10 +10,10 @@
             </div>
         </div>
         <div flex="main:center" class="home-posit">
-            <div flex="cross:center" class="posit-wrap">
+        <!--     <div flex="cross:center" class="posit-wrap">
                 <span>当前位置：</span>
                 <span>未知</span>
-            </div>
+            </div> -->
         </div>
     </div>
 </template>
@@ -81,7 +81,7 @@
                 wx.scanQRCode();
             },
             wxConfig(){
-                jsonp('http://tt.cpostcard.com/weixinshare/getSign.php?appId=wxd7178c7aa3d7639b', null, (err, data) => {
+                jsonp("http://tt.cpostcard.com/weixinshare/getSign.php?url="+encodeURIComponent(window.parent.document.URL.split('#')[0]), null, (err, data) => {
                     if (err) {
                         Toast(err.message);
                     } else {
@@ -92,7 +92,7 @@
             getRoute(){
                 this.code = this.$route.query.code;
                 if(this.code != '01'){
-                    Toast('这里不能访问！！！')
+                    //Toast('这里不能访问！！！')
                 }
             }
         },

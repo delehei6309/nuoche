@@ -18,7 +18,7 @@
                         <button @click.stop="captcha" :disabled="captchaLoading">{{captchaBtnTxt}}</button>
                     </dd>
                 </dl>
-                <dl flex >
+                <dl flex class="car-pai">
                     <dt flex-box="0">车牌号：</dt>
                     <dd flex-box="1">
                         <input type="text" name="" placeholder="请输入您的车牌号" maxlength="7" v-model="plateNum">
@@ -33,6 +33,7 @@
             <span class="bingding-gou-left"></span>
             <span class="bingding-gou-right"></span>
         </div>
+        
     </div>
 </template>
 
@@ -47,7 +48,7 @@
             return {
                 telphone:'',
                 captchaNum:'',
-                plateNum:'jingA',
+                plateNum:'',
                 plateItems:[
                     {
                         value:"jingA",
@@ -97,14 +98,12 @@
                     
                 }).then(res => {
                     if(res.code == '01'){
-                        this.validCode == res.data;
+                        this.validCode = res.data;
                         this.clearValidCode();
                     }else{
                         Toast(res.msg);
                     }
                 });
-                //test
-                this.validCode = '111111';
             },
             sendCode(time){
                 this.captchaLoading = true;
@@ -141,6 +140,7 @@
                     return false;
                 }
                 if(captchaNum != this.validCode){
+                    console.log(captchaNum,this.validCode)
                     Toast('验证码输入有误！');
                     return false;
                 }
@@ -152,7 +152,7 @@
                         code:this.code
                     }
                 })
-                $api.post('/user/code/bindCode',{
+                $api.get('/user/code/bind',{
                     telphone,code,plateNum
                 }).then(res => {
                     if(res.code == '01'){

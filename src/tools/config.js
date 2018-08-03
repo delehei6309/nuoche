@@ -5,7 +5,7 @@
 let protocol = window.location.protocol;
 protocol = 'https:'
 export let iosUrl = '';
-export let androidUrl = '';
+export let androidUrl = 'http://api.zhangxianfeng.com';
 export let apiUrl = '';
 export const telNumber = '400-010-8800';
 // dev env

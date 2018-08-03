@@ -7,7 +7,7 @@ import jsonp from 'jsonp';
 console.log(jsonp);
 let config = (options) => {
     wx.config({
-        debug: true,
+        debug: false,
         appId: options.appId,
         timestamp: parseInt(options.timestamp),
         nonceStr: options.nonceStr,
@@ -52,7 +52,7 @@ let scanQRCode = ($fn) => {
 let getdingwei = ($fn) => {
     wx.ready(() => {
         wx.getLocation({
-            type: 'wgs84',
+            type: 'gcj02',
             success: function (res) {
                 if($fn){
                     $fn(res);

@@ -5,7 +5,7 @@ import axios from 'axios';
 
 //import config from './config.js';
 //console.log(config)
-let serverUrl = '';
+let serverUrl = 'http://api.zhangxianfeng.com';
 let get = (path, data = {}, source = {}) => {
     console.log(data)
     data.t = new Date().getTime();
@@ -33,7 +33,7 @@ let post = (path, data = {}) => {
         url,
         method: 'post',
         headers: {
-            'Content-Type': 'json'
+            'Content-Type': 'application/json'
         },
         params: {
             t: new Date().getTime()
