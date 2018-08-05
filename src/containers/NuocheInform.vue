@@ -1,6 +1,6 @@
 <template>
     <div>
-        <nuoche-child></nuoche-child>
+        <nuoche-child v-show="status == '01'" :data="data"></nuoche-child>
         <div v-show="status == '02'" class="gongzhonghao"  flex="dir:top cross:center main:center">
             <dl class="">
                 <dt>
@@ -39,11 +39,14 @@
             return {
                 status:'01',//默认已关注
                 code:'',
-                image:''
+                image:'',
+                data:''//车牌号
             }
         },
         created(){
             //this.getWxisBind();
+            console.log(3333);
+            this.data = this.$route.query.data; //车牌号
         },
         computed: {
         },
@@ -59,6 +62,7 @@
                 $api.get(`/wechat/isBind/${code}`,).then( res =>{
                     if(res.code == '01'){
                         this.status = res.code;
+                        this.data = res.data;
                         
                     }if(res.code == '02'){
                         this.status = res.code;

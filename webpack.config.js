@@ -104,7 +104,7 @@ const config = {
         new webpack.NoEmitOnErrorsPlugin(),
         new WebpackMd5Hash(),
         new HtmlWebpackPlugin({
-            title: '挪车',
+            title: ' ',
             favicon: './src/images/logo.png',
             chunks: ['ventor', 'tools', 'main'],
             inject: 'body',

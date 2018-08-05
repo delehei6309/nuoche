@@ -7,7 +7,9 @@
                     <img src="../images/person/head_p.jpg">
                 </dt>
                 <dd flex="dir:top main:center">
-                    <span class="user-name">{{userName}}</span>
+                    <span class="user-name">
+                        <i>{{userName}}</i>&nbsp;&nbsp;<i>{{'京A66666'}}</i>
+                    </span>
                     <span class="time">服务到期时间: {{time}}</span>
                 </dd>
             </dl>
@@ -23,8 +25,9 @@
             <ul>
                 <li flex="main:justify cross:center" class="darao">
                     <span>免打扰</span>
-                    <span class="switch" :class="{'switch-closed':!switchStatus}"
-                        @click.stop="switchStatus = !switchStatus"></span>
+                    <!-- <span class="switch" :class="{'switch-closed':!switchStatus}"
+                        @click.stop="switchStatus = !switchStatus"></span> -->
+                    <mt-switch v-model="disturb"></mt-switch>
                 </li>
                 <li flex="dir:top main:center" class="my-infor"
                     @click="link">
@@ -63,15 +66,18 @@
 
 <script>
     import '../less/person.less';
-    import Toast from '../components/Toast';
+    import Vue from 'vue';
+    import { Switch, Toast } from 'mint-ui';
+    Vue.component(Switch.name, Switch);
     export default {
         name: 'person',
         data(){
             return {
-                userName:'张三三 13552149166',
+                userName:'张三三',
                 time:'2019.09.01 12:30:00',
                 switchStatus:true,
-                remarksShow:true
+                remarksShow:true,
+                disturb:true
             }
         },
         created(){
@@ -79,7 +85,7 @@
         computed: {
         },
         components:{
-
+           
         },
         methods: {
             link(){

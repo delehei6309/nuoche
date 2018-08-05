@@ -33,7 +33,8 @@ module.exports = {
         '_iteratorError':true,
         'Symbol':true,
         'wx':true,
-        'qq':true
+        'qq':true,
+        '$':true
     },
     // add your custom rules here
     'rules': {

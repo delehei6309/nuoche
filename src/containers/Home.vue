@@ -9,31 +9,45 @@
                 <span class="sao-txt">扫码挪车</span>
             </div>
         </div>
-        <div flex="main:center" class="home-posit">
-        <!--     <div flex="cross:center" class="posit-wrap">
-                <span>当前位置：</span>
-                <span>未知</span>
-            </div> -->
+        <div v-if="address" flex="main:center" class="home-posit">
+            <div flex="cross:center" class="posit-wrap">
+                <span flex-box="0">当前位置：</span>
+                <span flex-box="1" class="ellipsis">{{address}}</span>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
     import '../less/home.less';
+    import $device from '../tools/device';
     import wx from '../tools/wx';
-    import Toast from '../components/Toast';
+    import $api from '../tools/api';
     const markIcon = require('../images/home/marker-icon1.png');
+    import {Toast, Indicator} from 'mint-ui';
     import jsonp from 'jsonp';
     export default {
         name: 'home',
         data(){
             return {
-
+                address:''
             }
         },
+        beforeCreate(){
+        },
         created(){
-            this.getRoute();
-            this.wxConfig();//微信配置
+            if($device.isWeixin){
+                Indicator.open({
+                    spinnerType:'fading-circle',
+                    text:'定位中'
+                });
+                this.getRoute();
+                
+                this.wxConfig();//微信配置
+            }else{
+                Toast('请在微信下打开！')
+            }
+            
         },
         computed: {
         },
@@ -44,6 +58,7 @@
             getMap(latitude,longitude){
                 latitude = latitude || 39.916527;
                 longitude = longitude || 116.397128;
+                this.getLocation(latitude,longitude)
                 //当前位置文字
                 if(qq){
                     let center = new qq.maps.LatLng(latitude,longitude);
@@ -82,6 +97,7 @@
             },
             wxConfig(){
                 jsonp("http://tt.cpostcard.com/weixinshare/getSign.php?url="+encodeURIComponent(window.parent.document.URL.split('#')[0]), null, (err, data) => {
+                    //Indicator.close();
                     if (err) {
                         Toast(err.message);
                     } else {
@@ -94,17 +110,58 @@
                 if(this.code != '01'){
                     //Toast('这里不能访问！！！')
                 }
+            },
+
+            getLocation(latitude,longitude){
+                let that = this;
+                //$api.get('https://apis.map.qq.com/ws/geocoder/v1/?location=39.984154,116.307490&key=F4PBZ-OIRCW-HHURQ-ODE44-G4UTO-35FJ6')
+                // jsonp("http://apis.map.qq.com/ws/geocoder/v1/?callback=jsonp1&location=39.984154%2C116.307490&key=F4PBZ-OIRCW-HHURQ-ODE44-G4UTO-35FJ6&get_poi=0&output=jsonp", {
+                //     param:'jsonp1'
+                // }, (err, data) => {
+                //         console.log(err,data)
+                //     if (err) {
+                //         Toast(err.message);
+                //     } else {
+                //         console.log()
+                //         wx.config(data);
+                //     }
+                // });
+                let data={
+                    location:`${latitude},${longitude}`,
+                    key:"F4PBZ-OIRCW-HHURQ-ODE44-G4UTO-35FJ6",
+                    get_poi:0
+                }
+                let url = "http://apis.map.qq.com/ws/geocoder/v1/?";
+                data.output = "jsonp";  
+                $.ajax({
+                    type:"get",
+                    dataType:'jsonp',
+                    data:data,
+                    jsonp:"callback",
+                    jsonpCallback:"QQmap",
+                    url:url,
+                    success:function(json){
+                        that.address = json.result.address;
+                    },
+                    error:function(err){
+                        Toast('获取地址失败！')
+                    }
+
+                })
             }
         },
         mounted(){
-            this.getMap();
-            wx.getdingwei((res) => {
-                let { latitude, longitude } = res;//latitude 纬度
-                this.getMap(latitude, longitude)
-            })
+            if($device.isWeixin){
+                this.getMap();
+                wx.getdingwei((res) => {
+                    let { latitude, longitude } = res;//latitude 纬度
+                    this.getMap(latitude, longitude);
+                    Indicator.close();
+                });
+            }
         },
         destroyed(){
-
+            Indicator.close();
         }
     }
 </script>

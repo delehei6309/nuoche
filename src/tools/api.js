@@ -14,10 +14,12 @@ let get = (path, data = {}, source = {}) => {
         url,
         method: 'get',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+
         },
         params: data,
         //withCredentials: true
+        //crossdomain:true
     }).then(response => {
         if (response.status == 200) {
             return response.data;
@@ -35,9 +37,9 @@ let post = (path, data = {}) => {
         headers: {
             'Content-Type': 'application/json'
         },
-        params: {
-            t: new Date().getTime()
-        },
+        // params: {
+        //     t: new Date().getTime()
+        // },
         //withCredentials: true,
         data: data
     }).then(response => {

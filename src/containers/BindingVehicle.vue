@@ -1,24 +1,20 @@
 <template>
     <div class="binding">
-        <bind v-if="status == '02'"></bind>
-        <nuoche-inform v-if="status == '01'"></nuoche-inform>
-        <loading v-show="uiLoading"></loading>
+        <bind v-show="status == '02'" ></bind>
+        <nuoche-inform v-if="status == '01'" :data="data"></nuoche-inform>
     </div>
 </template>
 
 <script>
-    //import '../less/binding-vehicle.less';
     import $api from '../tools/api';
     import { checkPhone, setTitle } from '../tools/operation';
-    import Toast from '../components/Toast';
     import Bind from '../components/Bind';
     import NuocheInform from '../components/NuocheChild';
-    import Loading from '../components/Loading';
+    import {Toast, Indicator} from 'mint-ui';
     export default {
         name: 'binding-vehicle',
         data(){
             return {
-                uiLoading:true,
                 phoneNumber:'',
                 captchaNum:'',
                 plate:'jingA',
@@ -38,29 +34,32 @@
                 captchaBtnTxt:'发送验证码',
                 captchaLoading:false,
                 timer:null,
-                submiting:false,
                 status:0,//01:绑定，02：未绑定
                 code1:'2348329924006570',
-                code2:'3133365161072253'
+                code2:'3133365161072253',
+                data:'123'//车牌号
                 
             }
         },
         created(){
+            Indicator.open({
+                spinnerType:'fading-circle'
+                //spinnerType:'triple-bounce'//'double-bounce
+            });
             this.getStatus();
         },
         computed: {
-            code:function(){
-                return this.$route.query.code;
-            }
+            // code:function(){
+            //     return this.$route.query.code;
+            // }
         },
         components:{
             Bind,
-            NuocheInform,
-            Loading
+            NuocheInform
         },
         methods: {
             getStatus(){
-                let code = this.$route.query.code;
+                this.code = this.$route.query.code;
                 // if(code == this.code1){
                 //     this.status = '01'
                 // }else if(code == this.code2){
@@ -71,19 +70,30 @@
                 
                 //this.status = '02';
                 //绑定验证
-                $api.get(`/user/code/isBind/${code}`).then(res => {
-                    this.uiLoading = false;
-                    if(res.code == '01' || res.code == '02'){
-                        this.status = res.code ;//01已绑定;02未绑定
-                        
+                let code = this.code;
+               return  $api.get(`/user/code/isBind/${code}`).then(res => {
+                    Indicator.close();
+                    if(res.code == '02'){
+                        this.status = res.code;//01已绑定;02未绑定
+                        setTitle('绑定挪车码');
+                    }else if(res.code == '01'){
+                        this.status = res.code;
+                        this.$router.push({
+                            path:'/nuoche-inform',
+                            query:{
+                                code:this.code,
+                                data:res.data
+                            }
+                        });
                     }else{
                         Toast(res.msg);
+                        return {};
                     }
                 })
             }
         },
         destroyed(){
-
+            Indicator.close();
         }
     }
 </script>

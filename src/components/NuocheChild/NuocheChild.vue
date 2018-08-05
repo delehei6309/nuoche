@@ -6,7 +6,7 @@
                 <span class="bingding-gou-right"></span>
             </div>
             <div flex="main:center" class="plate-num">
-                <span>京A888888</span>
+                <span>{{data}}</span>
             </div>
             <div class="bingding-mao">
                 <div class="bingding-mao-left">
@@ -28,12 +28,12 @@
                 </dd>
             </dl>
             <div class="btn">
-                <a :href="`tel:${virtual}`">
+                <a v-if="virtual" :href="`tel:${virtual}`">
                     <button>拨打车主电话</button>
                 </a>
-                <!-- <a v-else href="javascript:void(0);" @>
+                <a v-else href="javascript:void(0);" @click="getPhone">
                     <button>拨打车主电话</button>
-                </a> -->
+                </a>
             </div>
         </div>
         <div class="img-box">
@@ -52,7 +52,6 @@
                 </div>
             </div>
         </div> -->
-        <loading v-show="loading"></loading>
     </div>
 </template>
 
@@ -60,41 +59,48 @@
     import './nuoche-inform.less';
     import $api from '../../tools/api';
     import { checkPhone, setTitle } from '../../tools/operation';
-    import Loading from '../Loading';
-    import Toast from '../Toast';
+    import {Toast, Indicator} from 'mint-ui';
     export default {
         name: 'nuoche-child',
+        props:['data'],
         data(){
             return {
-                telphone:'',
-                //phoneShow:false,
-                virtual:'',
-                loading:true
+                virtual:'15710022079',
+                code:''
             }
         },
         created(){
-            this.getPhone()
+            console.log(this.$route.query)
+            this.code = this.$route.query.code;
+            this.getPhone(1)
         },
         computed: {
         },
         components:{
-            Loading
+            //Loading
         },
         methods: {
             cancel(){
                this.telphone = ''; 
                this.phoneShow = false;
             },
-            getPhone(){
-                let code = this.$route.query.code;
-                $api.get(`/call/getVirtualCode/${code}`).then(res => {
-                    this.loading = true;
-                    this.virtual = res;
-                    this.cancel();
-                    setTimeout(()=>{
-                        this.loading = false;
-                        //Toast('输入成功，现在可以拨打电话啦！');
-                    },100);
+            getPhone(isFirst){
+                console.log('000000',this.code)
+                if(!this.code){
+                    Toast('没有码我怎么取你的信息');
+                    return false;
+                }
+                $api.get(`/call/getVirtualCode/${this.code}`).then(res => {
+                    if(res.code == '01'){
+                        this.virtual = res.data;
+                        if(!isFirst){
+                            window.location.href = `tel:${res.data}`;
+                        }
+                    }else{
+                        if(!isFirst){
+                            Toast( res.msg || '获取手机号失败！');
+                        }
+                    }
                 })
             }
         },

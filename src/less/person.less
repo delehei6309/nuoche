@@ -1,4 +1,9 @@
 .person{
+	overflow-y:auto;
+	.mint-switch-input:checked + .mint-switch-core{
+		background-color:#2d2f46;
+		border-color:#2d2f46;
+	}
 	.person-header{
 		height:5.0rem;
 		background:url("../images/person/person_topBg.jpg") 0 0;
@@ -17,11 +22,15 @@
 			dd{
 				.user-name{
 					color:#fff;
-					font-size: 0.75rem;
+					font-size: 0.8rem;
+					i{
+						font-style: normal;
+
+					}
 				}
 				.time{
 					color:#bdc0cb;
-					font-size: 0.57rem;
+					font-size: 0.7rem;
 				}
 			}
 		}

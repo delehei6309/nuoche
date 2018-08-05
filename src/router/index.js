@@ -11,6 +11,8 @@ const Person = resolve => require(['../containers/Person'], resolve);
 const BindingVehicle = resolve => require(['../containers/BindingVehicle'], resolve);
 const BindingCode = resolve => require(['../containers/BindingVehicle'], resolve);
 const NuocheInform = resolve => require(['../containers/NuocheInform'], resolve);
+const GuanZhu = resolve => require(['../containers/GuanZhu'], resolve);
+const MyCode = resolve => require(['../containers/MyCode'], resolve);
 let routes = [
     {
         path: '/base',
@@ -18,7 +20,10 @@ let routes = [
         meta: {
             title: '首页'
         },
-        component: Base
+        component: Base,
+        beforeEnter:(to, from, next) =>{
+            //
+        }
     },{
         path: '/tabs',
         name: 'tabs',
@@ -76,16 +81,30 @@ let routes = [
         path:'/binding',
         name:'binding',
         meta:{
-            title:'绑定挪车码'
+            title:' '
         },
         component: BindingCode
     },{
         path:'/nuoche-inform',
         name:'nuoche-inform',
         meta:{
-            title:'挪车通知'
+            title:'通知车主挪车'
         },
         component: NuocheInform
+    },{
+        path:'/guan-zhu',
+        name:'guan-zhu',
+        meta:{
+            title:'关注微信'
+        },
+        component: GuanZhu
+    },{
+        path:'/my-code',
+        name:'my-code',
+        meta:{
+            title:'我的挪车码'
+        },
+        component: MyCode
     }
 ];
 routes.push({

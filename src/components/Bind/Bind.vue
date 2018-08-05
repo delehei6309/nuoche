@@ -12,7 +12,7 @@
                 <dl flex class="captcha">
                     <dt flex-box="0">验证码：</dt>
                     <dd flex-box="1">
-                        <input type="text" name="" placeholder="请输入您的验证码" maxlength="6" v-model="captchaNum">
+                        <input type="tel" name="" placeholder="请输入您的验证码" maxlength="6" v-model="captchaNum">
                     </dd>
                     <dd flex-box="0">
                         <button @click.stop="captcha" :disabled="captchaLoading">{{captchaBtnTxt}}</button>
@@ -20,8 +20,16 @@
                 </dl>
                 <dl flex class="car-pai">
                     <dt flex-box="0">车牌号：</dt>
-                    <dd flex-box="1">
-                        <input type="text" name="" placeholder="请输入您的车牌号" maxlength="7" v-model="plateNum">
+                    <dd flex-box="1" flex>
+                        <span class="pai-span">
+                            <select v-model="plateCity">
+                                <option v-for="item in plateItems" :value="item.value">{{item.text}}</option>
+                            </select>
+                            <i>{{cityName}}</i>
+                        </span>
+                        <span>
+                            <input type="text" name="" placeholder="请输入您的车牌号" maxlength="6" v-model="plateNum">
+                        </span>
                     </dd>
                 </dl>
             </div>
@@ -33,7 +41,7 @@
             <span class="bingding-gou-left"></span>
             <span class="bingding-gou-right"></span>
         </div>
-        
+
     </div>
 </template>
 
@@ -41,7 +49,8 @@
     import './bind.less';
     import $api from '../../tools/api';
     import { checkPhone, setTitle } from '../../tools/operation';
-    import Toast from '../Toast';
+    import {Toast, Indicator} from 'mint-ui';
+    import cityItems from '../../../city/city.js';
     export default {
         name: 'bind',
         data(){
@@ -49,31 +58,48 @@
                 telphone:'',
                 captchaNum:'',
                 plateNum:'',
+                plateCity:'',
+
                 plateItems:[
-                    {
-                        value:"jingA",
-                        text:'京A'
-                    },{
-                        value:"jingB",
-                        text:'京B'
-                    },{
-                        value:"jingC",
-                        text:'京C'
-                    }
+                    // {
+                    //     value:"jingA",
+                    //     text:'京A'
+                    // },{
+                    //     value:"jingB",
+                    //     text:'京B'
+                    // },{
+                    //     value:"jingC",
+                    //     text:'京C'
+                    // }
                 ],
                 captchaBtnTxt:'发送验证码',
                 captchaLoading:false,
                 timer:null,
-                submiting:false,
                 code:'',
                 validCode:'XXXoooo9999'//验证码存储
             }
         },
         created(){
             this.code = this.$route.query.code;
+            cityItems.map(item => {
+                this.plateItems.push(item);
+            });
+            console.log(this.plateItems)
+            this.plateCity = cityItems[0].value;
+            console.log(this.plateCity);
         },
         computed: {
-            
+            cityName:function(){
+                let text = cityItems[0].value;
+                this.plateItems.map(item => {
+
+                    if(item.value == this.plateCity){
+                        console.log(item)
+                        text = item.text;
+                    }
+                });
+                return text;
+            }
         },
         components:{
 
@@ -125,6 +151,7 @@
                 let {
                     telphone,
                     captchaNum,code,
+                    cityName,
                     plateNum
                 } = this;
                 if(!checkPhone(telphone)){
@@ -139,31 +166,53 @@
                     Toast('请填车牌号！');
                     return false;
                 }
+                plateNum = ''+ cityName + plateNum;
                 if(captchaNum != this.validCode){
                     console.log(captchaNum,this.validCode)
                     Toast('验证码输入有误！');
                     return false;
                 }
-                this.submiting = true;//避免重复提交
-                console.log(telphone,captchaNum,code,plateNum)
-                this.$router.push({
-                    path:'/nuoche-inform',
-                    query:{
-                        code:this.code
-                    }
-                })
-                $api.get('/user/code/bind',{
-                    telphone,code,plateNum
-                }).then(res => {
+                Indicator.open({
+                    spinnerType:'triple-bounce'
+                });
+                //模拟
+                // setTimeout(()=>{
+                //     Indicator.close();
+                //     this.$router.push({
+                //         path:'/nuoche-inform',
+                //         query:{
+                //             code:this.code
+                //         }
+                //     })
+                // },1000)
+                $api.get(`/user/code/bind/${telphone}/${code}/${encodeURI(plateNum)}`).then(res => {
+                    Indicator.close();
                     if(res.code == '01'){
-                        this.$router.push({
-                            path:'/nuoche-inform',
-                            query:{
-                                code:this.code
+                        $api.get(`/wechat/isBind/${code}`,).then( res =>{
+                            if(res.code == '01'){
+                                Toast('您已经成功绑定挪车码！');
+                                setTimeout(()=>{
+                                    this.$router.push({
+                                        path:'/tab/home'
+                                    })
+                                },2000);
+                                
+                            }if(res.code == '02'){
+                                //未关注
+                                this.$router.push({
+                                    path:'/guan-zhu',
+                                    query:{
+                                        code
+                                    }
+                                });
+
+                            }else{
+                                Toast(res.msg || '服务器错误');
                             }
-                        })
+                        });
                     }else{
                         Toast(res.msg);
+                        return null
                     }
                 })
             },
@@ -174,7 +223,7 @@
                 }
                 this.timeOuter = setTimeout(()=>{
                     this.validCode = 'XXXoooo9999';
-                },60000);
+                },120000);
             }
         },
         destroyed(){
