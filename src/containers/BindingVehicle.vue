@@ -78,7 +78,7 @@
                         setTitle('绑定挪车码');
                     }else if(res.code == '01'){
                         this.status = res.code;
-                        this.$router.push({
+                        this.$router.replace({
                             path:'/nuoche-inform',
                             query:{
                                 code:this.code,
@@ -86,7 +86,7 @@
                             }
                         });
                     }else{
-                        Toast(res.msg);
+                        Toast(res.msg || '服务器错误');
                         return {};
                     }
                 })

@@ -7,9 +7,29 @@ import axios from 'axios';
 //console.log(config)
 let serverUrl = 'http://api.zhangxianfeng.com';
 let get = (path, data = {}, source = {}) => {
-    console.log(data)
     data.t = new Date().getTime();
     let url = `${serverUrl + path}`
+    return axios({
+        url,
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json',
+
+        },
+        params: data,
+        //withCredentials: true
+        //crossdomain:true
+    }).then(response => {
+        if (response.status == 200) {
+            return response.data;
+        }
+        return {};
+    }).catch(err => {
+        console.log('err--->')
+    })
+};
+let get2 = (path, data = {}, source = {}) => {
+    let url = `${path}`
     return axios({
         url,
         method: 'get',
@@ -55,6 +75,7 @@ let post = (path, data = {}) => {
 
 const $api = {
     get,
+    get2,
     post,
     serverUrl
 };

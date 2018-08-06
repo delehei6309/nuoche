@@ -192,14 +192,17 @@
                             if(res.code == '01'){
                                 Toast('您已经成功绑定挪车码！');
                                 setTimeout(()=>{
-                                    this.$router.push({
-                                        path:'/tab/home'
+                                    this.$router.replace({
+                                        path:'/my-code',
+                                        query:{
+                                            phone:telphone
+                                        }
                                     })
                                 },2000);
                                 
                             }if(res.code == '02'){
                                 //未关注
-                                this.$router.push({
+                                this.$router.replace({
                                     path:'/guan-zhu',
                                     query:{
                                         code

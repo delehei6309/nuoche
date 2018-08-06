@@ -8,7 +8,7 @@
                 </dt>
                 <dd flex="dir:top main:center">
                     <span class="user-name">
-                        <i>{{userName}}</i>&nbsp;&nbsp;<i>{{'京A66666'}}</i>
+                        <i>{{userName}}</i>&nbsp;&nbsp;<i></i>
                     </span>
                     <span class="time">服务到期时间: {{time}}</span>
                 </dd>
@@ -30,7 +30,7 @@
                     <mt-switch v-model="disturb"></mt-switch>
                 </li>
                 <li flex="dir:top main:center" class="my-infor"
-                    @click="link">
+                    @click="link('user-infor')">
                     <span>我的信息</span>
                 </li>
                 <li flex="dir:top main:center" class="my-order"
@@ -40,27 +40,27 @@
             </ul>
             <ul>
                 <li flex="dir:top main:center" class="my-code"
-                    @click="link">
+                    @click="link('my-code')">
                     <span>我的挪车码</span>
                 </li>
-                <li flex="dir:top main:center" class="my-record"
+                <!-- <li flex="dir:top main:center" class="my-record"
                     @click="link">
                     <span>挪车记录</span>
-                </li>
+                </li> -->
             </ul>
             <ul>
                 <li flex="dir:top main:center" class="my-about"
-                    @click="link">
+                    @click="link('about')">
                     <span>关于我们</span>
                 </li>
             </ul>
         </div>
-        <div flex="main:center cross:center" class="service">
+        <!-- <div flex="main:center cross:center" class="service">
             <span class="service-icon">
                 <img src="../images/person/service.png">
             </span>
             <span>客服电话: <a href="tel:400-400-4000">400-400-4000</a></span>
-        </div>
+        </div> -->
     </div>
 </template>
 
@@ -68,19 +68,21 @@
     import '../less/person.less';
     import Vue from 'vue';
     import { Switch, Toast } from 'mint-ui';
+    import EventBus from '../tools/event-bus';
     Vue.component(Switch.name, Switch);
     export default {
         name: 'person',
         data(){
             return {
-                userName:'张三三',
-                time:'2019.09.01 12:30:00',
+                userName:'挪车VIP',
+                time:'2019-08-01',
                 switchStatus:true,
-                remarksShow:true,
+                remarksShow:false,
                 disturb:true
             }
         },
         created(){
+            console.log(EventBus.openid);
         },
         computed: {
         },
@@ -88,12 +90,26 @@
            
         },
         methods: {
-            link(){
+            link(url){
+                //
                 Toast('暂未开放！');
+                return false;
+                // if(url == 'about' || url == 'user-infor' || url == 'my-code'){
+                //     this.$router.push({
+                //         path:`/${url}`,
+                //     });
+                // }else{
+                //     Toast('暂未开放！');
+                // }
+                
+
             },
             closeRemarks(){
                 this.remarksShow = false;
             }
+        },
+        mounted(){
+
         },
         destroyed(){
 

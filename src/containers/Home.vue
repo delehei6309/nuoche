@@ -21,6 +21,7 @@
 <script>
     import '../less/home.less';
     import $device from '../tools/device';
+    import EventBus from '../tools/event-bus';
     import wx from '../tools/wx';
     import $api from '../tools/api';
     const markIcon = require('../images/home/marker-icon1.png');
@@ -37,16 +38,19 @@
         },
         created(){
             if($device.isWeixin){
-                Indicator.open({
-                    spinnerType:'fading-circle',
-                    text:'定位中'
-                });
+                if(!EventBus.location){
+                    Indicator.open({
+                        spinnerType:'fading-circle',
+                        text:'定位中'
+                    });
+                }
                 this.getRoute();
                 
                 this.wxConfig();//微信配置
             }else{
                 Toast('请在微信下打开！')
             }
+            //EventBus.openid = this.$route.query.openid;
             
         },
         computed: {
@@ -58,7 +62,7 @@
             getMap(latitude,longitude){
                 latitude = latitude || 39.916527;
                 longitude = longitude || 116.397128;
-                this.getLocation(latitude,longitude)
+                this.getLocation(latitude,longitude);
                 //当前位置文字
                 if(qq){
                     let center = new qq.maps.LatLng(latitude,longitude);
@@ -114,6 +118,14 @@
 
             getLocation(latitude,longitude){
                 let that = this;
+                if(EventBus.location){
+                    //在有定位信息的条件下
+                    let address = EventBus.location[`${latitude},${longitude}`];
+                    if(address){
+                        this.address = address;
+                        return false;
+                    }
+                }
                 //$api.get('https://apis.map.qq.com/ws/geocoder/v1/?location=39.984154,116.307490&key=F4PBZ-OIRCW-HHURQ-ODE44-G4UTO-35FJ6')
                 // jsonp("http://apis.map.qq.com/ws/geocoder/v1/?callback=jsonp1&location=39.984154%2C116.307490&key=F4PBZ-OIRCW-HHURQ-ODE44-G4UTO-35FJ6&get_poi=0&output=jsonp", {
                 //     param:'jsonp1'
@@ -142,6 +154,7 @@
                     url:url,
                     success:function(json){
                         that.address = json.result.address;
+                        EventBus.location[`${latitude},${longitude}`] = json.result.address;
                     },
                     error:function(err){
                         Toast('获取地址失败！')
@@ -152,12 +165,34 @@
         },
         mounted(){
             if($device.isWeixin){
-                this.getMap();
-                wx.getdingwei((res) => {
-                    let { latitude, longitude } = res;//latitude 纬度
+                if(EventBus.location){
+                    let {latitude, longitude} = EventBus.location;
                     this.getMap(latitude, longitude);
-                    Indicator.close();
-                });
+                }else{
+                    wx.getdingwei((res) => {
+                        let { latitude, longitude } = res;//latitude 纬度
+                        //存储定位信息
+                        EventBus.location = {
+                            latitude,longitude
+                        };
+                        EventBus.location[`${latitude},${longitude}`] = '';
+                        this.getMap(latitude, longitude);
+                        Indicator.close();
+                    });
+                    //test
+                    /*setTimeout(()=>{
+                        let latitude = 39.926224;
+                        let longitude = 116.219721;
+                        EventBus.location = {
+                            latitude,longitude
+                        };
+                        EventBus.location[`${latitude},${longitude}`] = '';
+                        this.getMap(latitude, longitude);
+                        Indicator.close();
+                    },1000);*/
+                }
+
+                
             }
         },
         destroyed(){

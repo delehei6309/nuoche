@@ -13,6 +13,8 @@ const BindingCode = resolve => require(['../containers/BindingVehicle'], resolve
 const NuocheInform = resolve => require(['../containers/NuocheInform'], resolve);
 const GuanZhu = resolve => require(['../containers/GuanZhu'], resolve);
 const MyCode = resolve => require(['../containers/MyCode'], resolve);
+const About = resolve => require(['../containers/About'], resolve);
+const UserInfor = resolve => require(['../containers/UserInfor'], resolve);
 let routes = [
     {
         path: '/base',
@@ -105,6 +107,20 @@ let routes = [
             title:'我的挪车码'
         },
         component: MyCode
+    },{
+        path:'/about',
+        name:'about',
+        meta:{
+            title:'关于我们'
+        },
+        component: About
+    },{
+        path:'/user-infor',
+        name:'user-infor',
+        meta:{
+            title:'我的信息'
+        },
+        component: UserInfor
     }
 ];
 routes.push({
