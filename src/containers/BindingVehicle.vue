@@ -1,7 +1,7 @@
 <template>
     <div class="binding">
         <bind v-show="status == '02'" ></bind>
-        <nuoche-inform v-if="status == '01'" :data="data"></nuoche-inform>
+        <nuoche-inform v-if="status == '01'" :plateNum="plateNum" :disturn="disturn"></nuoche-inform>
     </div>
 </template>
 
@@ -37,7 +37,7 @@
                 status:0,//01:绑定，02：未绑定
                 code1:'2348329924006570',
                 code2:'3133365161072253',
-                data:'123'//车牌号
+                plateNum:''//车牌号
                 
             }
         },
@@ -82,7 +82,8 @@
                             path:'/nuoche-inform',
                             query:{
                                 code:this.code,
-                                data:res.data
+                                plateNum:res.data.plateNum,
+                                disturn:res.data.disturn
                             }
                         });
                     }else{

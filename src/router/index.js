@@ -15,6 +15,9 @@ const GuanZhu = resolve => require(['../containers/GuanZhu'], resolve);
 const MyCode = resolve => require(['../containers/MyCode'], resolve);
 const About = resolve => require(['../containers/About'], resolve);
 const UserInfor = resolve => require(['../containers/UserInfor'], resolve);
+const News = resolve => require(['../containers/News'], resolve);
+const NewsDetail = resolve => require(['../containers/NewsDetail'], resolve);
+const JoinInfo = resolve => require(['../containers/JoinInfo'], resolve);
 let routes = [
     {
         path: '/base',
@@ -121,6 +124,27 @@ let routes = [
             title:'我的信息'
         },
         component: UserInfor
+    },{
+        path:'/news',
+        name:'news',
+        meta:{
+            title:'新闻'
+        },
+        component: News
+    },{
+        path:'/news-detail',
+        name:'news-detail',
+        meta:{
+            title:'新闻详情'
+        },
+        component: NewsDetail
+    },{
+        path:'/join-info',
+        name:'join-info',
+        meta:{
+            title:'加盟信息'
+        },
+        component: JoinInfo
     }
 ];
 routes.push({

@@ -6,37 +6,69 @@
                 <dl flex>
                     <dt flex-box="0">手机：</dt>
                     <dd flex-box="1">
-                        <input type="tel" maxlength="11" placeholder="请输入手机号">
+                        <input type="tel" maxlength="11" placeholder="请输入手机号" v-model="telphone">
                     </dd>
                 </dl>
-                <dl flex class="infor-name">
+                <!-- <dl flex class="infor-name">
                     <dt flex-box="0">姓名：</dt>
                     <dd flex-box="1">
                         <input type="text" maxlength="20" placeholder="请输入姓名">
                     </dd>
-                </dl>
+                </dl> -->
                 <dl flex class="infor-nicename">
                     <dt flex-box="0">昵称：</dt>
                     <dd flex-box="1">
-                        <input type="text" maxlength="20" placeholder="请输入昵称">
+                        <input type="text" maxlength="20" placeholder="请输入昵称" v-model="nickName">
                     </dd>
                 </dl>
-                <dl flex class="infor-city">
+                <!-- <dl flex class="car-pai">
+                    <dt flex-box="0">车牌号：</dt>
+                    <dd flex-box="1" flex>
+                        <span class="pai-span">
+                            <select v-model="plateCity">
+                                <option v-for="item in plateItems" :value="item.value">{{item.text}}</option>
+                            </select>
+                            <i>{{cityName}}</i>
+                        </span>
+                        <span>
+                            <input type="text" name="" placeholder="请输入您的车牌号" maxlength="6" v-model="plateNum">
+                        </span>
+                    </dd>
+                </dl> -->
+                <dl flex class="infor-nicename">
+                    <dt flex-box="0">车牌号：</dt>
+                    <dd flex-box="1">
+                        <input type="text" maxlength="7" placeholder="请输入车牌号" v-model="plateNum">
+                    </dd>
+                </dl>
+                <dl flex class="infor-nicename">
+                    <dt flex-box="0">车型：</dt>
+                    <dd flex-box="1">
+                        <input type="text" maxlength="20" placeholder="请输入车型" v-model="carType">
+                    </dd>
+                </dl>
+                <dl flex class="infor-nicename">
+                    <dt flex-box="0">车架号：</dt>
+                    <dd flex-box="1">
+                        <input type="text" maxlength="20" placeholder="请输入车架号" v-model="machineType">
+                    </dd>
+                </dl>
+                <!-- <dl flex class="infor-city">
                     <dt flex-box="0">城市：</dt>
                     <dd flex-box="1">
                         <input type="text" id="trigger" maxlength="20" placeholder="请选择省/市/区" 
                         v-model="address" readonly>
                     </dd>
-                </dl>
+                </dl> -->
                 <dl flex class="infor-address">
                     <dt flex-box="0">通讯地址：</dt>
                     <dd flex-box="1">
-                        <input type="text" maxlength="20" placeholder="通讯地址">
+                        <input type="text" maxlength="50" placeholder="通讯地址" v-model="address">
                     </dd>
                 </dl>
             </div>
         </div>
-        <h6>上传头像</h6>
+        <!-- <h6>上传头像</h6>
         <div class="user-upload">
             <dl flex="cross:center">
                 <dt flex>
@@ -47,9 +79,9 @@
                 </dt>
                 <dd>请上传120*120的图片尺寸<br>否则图片变形</dd>
             </dl>
-        </div>
+        </div> -->
         <div class="btns">
-            <button>确认修改</button>
+            <button @click.stop="submit">确认修改</button>
         </div>
     </div>
 </template>
@@ -58,25 +90,157 @@
     import '../less/user-infor.less';
     import MobileSelect from 'mobile-select';
     import {Toast, Indicator} from 'mint-ui';
+    import { checkPhone, setTitle } from '../tools/operation';
+    import $api from '../tools/api';
+    import cityItems from '../../city/city.js';
     export default {
         name: 'user-infor',
         data(){
             return {
-                address:''
+                nickName:'',
+                telphone:'',
+                address:'',
+                userInfor:{},
+                plateItems:[],
+                plateCity:1,
+                _plateNum:'',//取详情的完整name;
+                plateNum:'',
+                carType:'',
+                machineType:''
             }
         },
         created(){
-            
+            this.userInfor = JSON.parse(sessionStorage.getItem('userInfor')) || {};
+            this.getUserInfor();
+            //省份添加
+            cityItems.map(item => {
+                this.plateItems.push(item);
+            });
         },
         computed: {
+            // cityName:function(){
+            //     let text = cityItems[0].text;
+            //     console.log(text)
+            //     this.plateItems.map(item => {
+
+            //         if(item.value == this.plateCity){
+            //             console.log(item)
+            //             text = item.text;
+            //         }
+            //     });
+            //     return text;
+            // }
         },
         components:{
 
         },
         mounted(){
-            this.setMobileSelect();
+            //this.setMobileSelect();
         },
         methods: {
+            getUserInfor(){
+                let openid = this.userInfor.openid || '""';
+                if(!openid){
+                    Toast('获取openid失败！');
+                    return false;
+                }
+                Indicator.open({
+                    spinnerType:'fading-circle'
+                });
+                $api.get(`/usercenter/my/${openid}`).then(res => {
+                    Indicator.close();
+                    if(res.code == '01'){
+                        this.nickName = res.data.nickName;
+                        this.telphone = res.data.telphone;
+                        if(res.data.address == '""'){
+                            this.address = '';
+                        }else{
+                            this.address = res.data.address;
+                        }
+                        if(res.data.carType == '""'){
+                            this.carType = '';
+                        }else{
+                            this.carType = res.data.carType;
+                        }
+                        if(res.data.machineType == '""'){
+                            this.machineType = '';
+                        }else{
+                            this.machineType = res.data.machineType;
+                        }
+                        if(res.data.plateNum == '""'){
+                            this.plateNum = '';
+                        }else{
+                            this.plateNum = res.data.plateNum;
+                        }
+                        //this._plateNum = res.data.plateNum;
+                        this.getPlateNum();
+                    }else{
+                        Toast(res.msg || '服务器错误！');
+                    }
+                })
+            },
+            submit(){
+                let { 
+                    nickName, telphone, address,
+                    cityName, plateNum, carType,
+                    machineType
+                } = this;
+                carType = carType || '""';
+                machineType = machineType || '""';
+                address = address || '""';
+                plateNum = plateNum || '""';
+                let openId = this.userInfor.openid || '""';
+                //校验
+                if(!checkPhone(telphone)){
+                    Toast('请输入正确的手机号！');
+                    return false;
+                }
+                if(!nickName.trim()){
+                    Toast('请输入昵称！');
+                    return false;
+                }
+                // if(!address.trim()){
+                //     Toast('请输入详细地址！');
+                //     return false;
+                // }
+                //plateNum ? plateNum = cityName + plateNum : plateNum = '""';
+                // let ooo = {
+                //     nickName, telphone, address,
+                //     cityName, plateNum, carType,
+                //     machineType
+                // }
+                // console.log(ooo);
+                Indicator.open({
+                    spinnerType:'triple-bounce'
+                });
+                $api.get(`/usercenter/update/my/${telphone}/${nickName}/${address}/${plateNum}/${carType}/${machineType}/${openId}`).then(res => {
+                    Indicator.close();
+                    if(res.code == '01'){
+                        Toast({
+                            message:'修改成功！',
+                            duration:2000
+                        });
+                        setTimeout(()=>{
+                            this.$router.replace({
+                                path:'/person'
+                            })
+                        },2000);
+                    }else{
+                        Toast(res.msg || '服务器错误！');
+                    }
+                });
+            },
+            getPlateNum(_plateNum){
+                let arr = _plateNum.split('');
+                let name = arr[0];
+                this.plateItems.map(({value,text}) =>{
+                    if(text == name){
+                        this.plateCity = value;
+                    }
+                });
+                arr.shift();
+                this.plateNum = arr.join('');
+            },
             setMobileSelect(){
                 let that = this;
                 console.log(MobileSelect)
@@ -155,7 +319,7 @@
             }
         },
         destroyed(){
-
+            Indicator.close();
         }
     }
 </script>

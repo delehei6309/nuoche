@@ -1,6 +1,6 @@
 <template>
     <div>
-        <nuoche-child v-show="status == '01'" :data="data"></nuoche-child>
+        <nuoche-child v-show="status == '01'" :plateNum="plateNum" :disturn="disturn"></nuoche-child>
         <div v-show="status == '02'" class="gongzhonghao"  flex="dir:top cross:center main:center">
             <dl class="">
                 <dt>
@@ -40,13 +40,15 @@
                 status:'01',//默认已关注
                 code:'',
                 image:'',
-                data:''//车牌号
+                plateNum:'',//车牌号
+                disturn:''
             }
         },
         created(){
             //this.getWxisBind();
             console.log(3333);
-            this.data = this.$route.query.data; //车牌号
+            this.plateNum = this.$route.query.plateNum; //车牌号
+            this.disturn = this.$route.query.disturn; //免打扰
         },
         computed: {
         },

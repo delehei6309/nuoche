@@ -2,11 +2,13 @@
 @import "variables";
 .tabs-warp{
 	height: 100%;
+
 	.tabs{
 		height:2.7rem;
 		background-color: @tab-bg-color;
 		color:@tab-color;
 		font-size: 0.5rem;
+		box-shadow: 0 -0.25rem 0.5rem rgba(0, 0, 0, 0.1);
 		.tab{
 			width:3.75rem;
 			.tab-icon{
@@ -57,6 +59,19 @@
 
 		}
 	}
+}
+@supports (bottom: constant(safe-area-inset-bottom)) {
+  	body {
+    	margin-bottom: constant(safe-area-inset-bottom);
+  	}
+}
+@media (device-width: 375px) and (device-height: 812px) and (-webkit-min-device-pixel-ratio : 3){
+    //如果以后出现375*812,非ios机型，可以加上下面语句
+    @supports (bottom: constant(safe-area-inset-bottom)) {
+        body {
+	    	margin-bottom: constant(safe-area-inset-bottom);
+	  	}
+    }
 }
 
 

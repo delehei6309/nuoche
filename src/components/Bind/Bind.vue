@@ -60,18 +60,7 @@
                 plateNum:'',
                 plateCity:'',
 
-                plateItems:[
-                    // {
-                    //     value:"jingA",
-                    //     text:'京A'
-                    // },{
-                    //     value:"jingB",
-                    //     text:'京B'
-                    // },{
-                    //     value:"jingC",
-                    //     text:'京C'
-                    // }
-                ],
+                plateItems:[],
                 captchaBtnTxt:'发送验证码',
                 captchaLoading:false,
                 timer:null,
@@ -84,9 +73,9 @@
             cityItems.map(item => {
                 this.plateItems.push(item);
             });
-            console.log(this.plateItems)
             this.plateCity = cityItems[0].value;
-            console.log(this.plateCity);
+
+            this.getUserInfor();
         },
         computed: {
             cityName:function(){
@@ -105,6 +94,10 @@
 
         },
         methods: {
+            getUserInfor(){
+                let userInfor = JSON.parse(sessionStorage.getItem('userInfor')) || {};
+                this.openId = userInfor.openid || '';
+            },
             //发送验证码
             captcha(){
                 let { telphone } = this;
@@ -152,7 +145,8 @@
                     telphone,
                     captchaNum,code,
                     cityName,
-                    plateNum
+                    plateNum,
+                    openId
                 } = this;
                 if(!checkPhone(telphone)){
                     Toast('请填写有效的手机号码！');
@@ -185,18 +179,22 @@
                 //         }
                 //     })
                 // },1000)
-                $api.get(`/user/code/bind/${telphone}/${code}/${encodeURI(plateNum)}`).then(res => {
+                //绑定code
+                openId = openId || '""';
+                $api.get(`/user/code/bind/${telphone}/${code}/${encodeURI(plateNum)}/${openId}`).then(res => {
                     Indicator.close();
+
                     if(res.code == '01'){
+                        //绑定成功，判断是否关注公众号？
                         $api.get(`/wechat/isBind/${code}`,).then( res =>{
                             if(res.code == '01'){
-                                Toast('您已经成功绑定挪车码！');
+                                Toast({
+                                    message:'您已经成功绑定挪车码！',
+                                    duration:2000
+                                });
                                 setTimeout(()=>{
                                     this.$router.replace({
-                                        path:'/my-code',
-                                        query:{
-                                            phone:telphone
-                                        }
+                                        path:'/my-code'
                                     })
                                 },2000);
                                 

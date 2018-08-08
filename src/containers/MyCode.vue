@@ -15,23 +15,23 @@
             <ul class="my-code-items">
                 <li class="my-code-item" v-for="(item,index) in items"
                     :class="{'gua-gou':index != items.length-1}">
-                    <div class="item-title">车牌号：{{item.PLATENUM}}</div>
+                    <div class="item-title">车牌号：{{item.plateNum}}</div>
                     <dl flex="main:justify cross:center" class="item-time">
                         <dt flex>
                             <span flex-box="0">激活日期：</span>
-                            <span flex-box="1">{{item.vipBeginDate}}</span>
+                            <span flex-box="1">{{vipBeginTime}}</span>
                         </dt>
                         <dd flex>
                             <span flex-box="0">有效期截止：</span>
-                            <span flex-box="1">{{item.vipEndDate}}</span>
+                            <span flex-box="1">{{item.vipEndTIme}}</span>
                         </dd>
                     </dl>
                     <div flex="main:center cross:center" class="item-status">
                         <!-- <span class="s-icon"></span> -->
-                        <span v-if="item.STATUS == 1" style="color:#666879">未激活</span>
-                        <span v-if="item.STATUS == 2">已激活</span>
-                        <span v-if="item.STATUS == 3" style="color:#ef1616">已停用</span>
-                        <span v-if="(item.STATUS != 1) && (item.STATUS != 2) && (item.STATUS != 3)">未知</span>
+                        <span v-if="item.status == 1" style="color:#666879">未激活</span>
+                        <span v-if="item.status == 2">已激活</span>
+                        <span v-if="item.status == 3" style="color:#ef1616">已停用</span>
+                        <span v-if="(item.status != 1) && (item.status != 2) && (item.status != 3)">未知</span>
                     </div>
                 </li>
             </ul>
@@ -44,7 +44,7 @@
     import { Indicator, Toast } from 'mint-ui';
     import EventBus from '../tools/event-bus';
     import $api from '../tools/api';
-    import jsonp from 'jsonp';
+    //import jsonp from 'jsonp';
     export default {
         name: 'my-code',
         data(){
@@ -61,14 +61,13 @@
                         vipEndDate:'2019.02.01',
                         STATUS:1// 1未激活，2激活 3停用
                     }*/
-                ]
+                ],
+                vipBeginTime:''
             }
         },
         created(){
-            Indicator.open({
-                spinnerType:'fading-circle'
-            });
-            this.getUser();
+            this.getTime();
+            this.getCodeItems();
         },
         computed: {
             count:function(){
@@ -79,8 +78,38 @@
 
         },
         methods: {
-
-            getUser(){
+            getCodeItems(){
+                let userInfor = JSON.parse(sessionStorage.getItem('userInfor')) || {};
+                let openid = userInfor.openid || '""';
+                if(!openid){
+                    Toast('获取openid失败！');
+                    return false;
+                }
+                Indicator.open({
+                    spinnerType:'fading-circle'
+                });
+                $api.get(`/usercenter/mycode/${openid}`).then(res => {
+                    Indicator.close();
+                    if(res.code == '01'){
+                        //plateNum,vipBeginTime，vipEndTIme,status
+                        res.data.map(item => {
+                            this.items.push(item);
+                        })
+                    }else{
+                        Toast(res.msg || '服务器错误！');
+                    }
+                })
+            },
+            getTime(){
+                let d = new Date();
+                let year = d.getFullYear();
+                let month = d.getMonth()+1;
+                month < 10 ? (month = '0' + month) : '';
+                let date = d.getDate();
+                date < 10 ? (date = '0' + month) : '';
+                this.vipBeginTime = year + '-' + month + '-' + date;
+            }
+            /*getUser(){
                 let phone = this.$route.query.phone;
                 jsonp(`http://test.filmfest.hualumedia.com/getCode.php?phone=${phone}`,null,(err,data)=>{
                     Indicator.close();
@@ -95,10 +124,10 @@
                     }
                     console.log(data);
                 });
-            }
+            }*/
         },
         destroyed(){
-
+            Indicator.close();
         }
     }
 </script>

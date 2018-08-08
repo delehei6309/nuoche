@@ -17,7 +17,7 @@
 				line-height: 2.12rem;
 				
 				background:url("../images/person/myMessage_ico1.jpg") no-repeat 0.6rem 50%;
-				background-size:0.7rem;
+				background-size:0;
 				&:not(:last-child){
 					border-bottom:1px solid #f6f8fa;
 				}
@@ -45,6 +45,38 @@
 				}
 				&.infor-address{
 					background-image:url("../images/person/myMessage_ico5.jpg");
+				}
+				&.car-pai{
+					background-image:url("../images/home/city_licensePlate.jpg");
+					dt{
+						position: relative;
+					}
+					dd{
+						span{
+							select{
+								font-size: 0.75rem;
+							}
+							&.pai-span{
+								position: relative;
+								width:2.0rem;
+								background:url("../images/home/city_bottom.jpg") no-repeat 77% 50%;
+								background-size:0.65rem;
+								i{
+									display: block;
+									font-style: normal;
+								}
+								select{
+									position: absolute;
+									left:0;
+									top:0;
+									z-index: 2;
+									width:100%;
+									height:100%;
+									opacity: 0;
+								}
+							}
+						}
+					}
 				}
 			}
 		}

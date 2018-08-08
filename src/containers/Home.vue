@@ -24,7 +24,7 @@
     import EventBus from '../tools/event-bus';
     import wx from '../tools/wx';
     import $api from '../tools/api';
-    const markIcon = require('../images/home/marker-icon1.png');
+    const markIcon = require('../images/home/marker-icon3.png');
     import {Toast, Indicator} from 'mint-ui';
     import jsonp from 'jsonp';
     export default {
@@ -38,6 +38,8 @@
         },
         created(){
             if($device.isWeixin){
+                this.getUser();
+
                 if(!EventBus.location){
                     Indicator.open({
                         spinnerType:'fading-circle',
@@ -59,6 +61,16 @@
 
         },
         methods: {
+            getUser(){
+                if(this.$route.query.openid && this.$route.query.nickname){
+                    let userInfor = {};
+                    userInfor.openid = this.$route.query.openid;
+                    userInfor.headimgurl = this.$route.query.headimgurl;
+                    userInfor.nickname = this.$route.query.nickname;
+                    sessionStorage.setItem('userInfor',JSON.stringify(userInfor));
+                }
+                
+            },
             getMap(latitude,longitude){
                 latitude = latitude || 39.916527;
                 longitude = longitude || 116.397128;
@@ -69,6 +81,9 @@
                     let map = new qq.maps.Map(document.getElementById("container"),{
                         //加载地图经纬度信息
                         center,
+                        mapTypeControlOptions: {
+                            mapTypeIds: []
+                        },
                         zoom: 13,                       //设置缩放级别
                         draggable: true,               //设置是否可以拖拽
                         scrollwheel: false,             //设置是否可以滚动
@@ -79,7 +94,7 @@
                         map: map,
                     });
                     let anchor = new qq.maps.Point(0, 0),
-                        size = new qq.maps.Size(57, 57),
+                        size = new qq.maps.Size(48, 48),
                         origin = new qq.maps.Point(0, 0),
                         markerIcon = new qq.maps.MarkerImage(
                             markIcon,
@@ -167,6 +182,10 @@
             if($device.isWeixin){
                 if(EventBus.location){
                     let {latitude, longitude} = EventBus.location;
+                    // let {latitude, longitude} = {
+                    //     latitude:39.926224,
+                    //     longitude:116.219721
+                    // };
                     this.getMap(latitude, longitude);
                 }else{
                     wx.getdingwei((res) => {
@@ -179,17 +198,6 @@
                         this.getMap(latitude, longitude);
                         Indicator.close();
                     });
-                    //test
-                    /*setTimeout(()=>{
-                        let latitude = 39.926224;
-                        let longitude = 116.219721;
-                        EventBus.location = {
-                            latitude,longitude
-                        };
-                        EventBus.location[`${latitude},${longitude}`] = '';
-                        this.getMap(latitude, longitude);
-                        Indicator.close();
-                    },1000);*/
                 }
 
                 

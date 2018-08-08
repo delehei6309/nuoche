@@ -4,16 +4,17 @@
         <div flex="dir:top main:center" class="person-header">
             <dl flex>
                 <dt>
-                    <img src="../images/person/head_p.jpg">
+                    <img :src="userInfor.headimgurl">
                 </dt>
                 <dd flex="dir:top main:center">
                     <span class="user-name">
-                        <i>{{userName}}</i>&nbsp;&nbsp;<i></i>
+                        <i>{{userInfor.nickname}}</i>&nbsp;&nbsp;<i v-if="plateNum">{{plateNum}}</i>
                     </span>
-                    <span class="time">服务到期时间: {{time}}</span>
+                    <span v-if="vipEndTime" class="time">服务到期时间: {{vipEndTime}}</span>
+                    <span v-if="vipEndTime == '2018'" class="time">未绑定车牌号</span>
                 </dd>
             </dl>
-            <div class="person-setting"></div>
+            <div class="person-setting" @click.stop="link('user-infor')"></div>
         </div>
         <div v-show="remarksShow" flex="dir:top main:center" class="remarks">
             <dl flex="cross:center">
@@ -27,17 +28,23 @@
                     <span>免打扰</span>
                     <!-- <span class="switch" :class="{'switch-closed':!switchStatus}"
                         @click.stop="switchStatus = !switchStatus"></span> -->
-                    <mt-switch v-model="disturb"></mt-switch>
+                    <mt-switch v-model="disturb" @change="switchChange"></mt-switch>
                 </li>
+                
+                
+            </ul>
+            <ul>
                 <li flex="dir:top main:center" class="my-infor"
                     @click="link('user-infor')">
                     <span>我的信息</span>
                 </li>
+            </ul>
+            <!-- <ul>
                 <li flex="dir:top main:center" class="my-order"
                     @click="link">
                     <span>我的订单</span>
                 </li>
-            </ul>
+            </ul> -->
             <ul>
                 <li flex="dir:top main:center" class="my-code"
                     @click="link('my-code')">
@@ -69,20 +76,24 @@
     import Vue from 'vue';
     import { Switch, Toast } from 'mint-ui';
     import EventBus from '../tools/event-bus';
+    import $api from '../tools/api';
     Vue.component(Switch.name, Switch);
     export default {
         name: 'person',
         data(){
             return {
                 userName:'挪车VIP',
-                time:'2019-08-01',
+                vipEndTime:'',
                 switchStatus:true,
                 remarksShow:false,
-                disturb:true
+                disturb:false,
+                plateNum:'',
+                userInfor:{}
             }
         },
         created(){
-            console.log(EventBus.openid);
+            console.log(sessionStorage.getItem('userInfor'));
+            this.getUser();
         },
         computed: {
         },
@@ -90,22 +101,64 @@
            
         },
         methods: {
+            getUser(){
+                this.userInfor = JSON.parse(sessionStorage.getItem('userInfor')) || {};
+                let openid = this.userInfor.openid;
+                if(!openid){
+                    Toast('获取openid失败！');
+                    return false;
+                }
+                $api.get(`/usercenter/init/${openid}`).then(res => {
+                    if(res.code == '01'){
+                        this.telphone = res.data.telphone;
+                        this.disturb = res.data.disturb;
+                        this.vipEndTime = res.data.vipEndTime || '';
+                        this.plateNum = res.data.plateNum;
+                    }else{
+                        Toast(res.msg || '服务器错误');
+                    }
+                });
+            },
             link(url){
                 //
-                Toast('暂未开放！');
-                return false;
-                // if(url == 'about' || url == 'user-infor' || url == 'my-code'){
-                //     this.$router.push({
-                //         path:`/${url}`,
-                //     });
-                // }else{
-                //     Toast('暂未开放！');
-                // }
+                // Toast('暂未开放！');
+                // return false;
+                if(url == 'about' || url == 'user-infor' || url == 'my-code'){
+                    this.$router.push({
+                        path:`/${url}`,
+                    });
+                }else{
+                    Toast('暂未开放！');
+                }
                 
 
             },
             closeRemarks(){
                 this.remarksShow = false;
+            },
+            switchChange(checked){
+                let disturb = 0;
+                this.disturb ? disturb = 1 : '' ;
+                let openId = this.userInfor.openid || '""';
+                if(!openId){
+                    Toast('获取openId失败！');
+                    return false;
+                }
+                //this.switchLoading = false;
+                $api.get(`/usercenter/setDisturb/${disturb}/${openId}`).then(res => {
+                    if(res.code == '01'){
+                        if(disturb){
+                            Toast('您已经开启了免打扰模式！');
+                        }else{
+                            Toast('您已经关闭了免打扰模式！')
+                        }
+                    }else{
+                        Toast(res.msg || '服务器错误！');
+                    }
+                })
+                //this.$nextTick(()=>{
+                    console.log(this.disturb);
+                //})
             }
         },
         mounted(){

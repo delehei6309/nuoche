@@ -1,25 +1,28 @@
 <template>
-    <div class="find">
-        <div class="find-banner">
-            <img src="../images/find/headerBanner.jpg">
-        </div>
-        <div class="find-banner">
+    <div class="join-info">
+        <div class="join-items">
             <ul>
-                <li v-for="item in items" :class="item.val" 
-                    @click="link(item.val,item.NEWSCATEGORY_ID)">{{item.NAME}}</li>
+                <li v-for="item in items" @click="link(item.CARNEWS_ID)">
+                    <div v-if="item.THUMB_X" class="item-imgs">
+                        <img :src="item.THUMB_X">
+                    </div>
+                    <h5>{{item.TITLE}}</h5>
+                    <div class="item-bot">
+                        <span>{{item.UPDATED_TIME}}</span>
+                        <span v-if="item.COPYFROM">来源:{{item.COPYFROM}}</span>
+                    </div>
+                </li>
             </ul>
         </div>
-
     </div>
 </template>
 
 <script>
-    import '../less/find.less';
-    import $api from '../tools/api';
-    import jsonp from 'jsonp';
+    import '../less/join-info.less';
     import {Toast, Indicator} from 'mint-ui';
+    import jsonp from 'jsonp';
     export default {
-        name: 'find',
+        name: 'join-info',
         data(){
             return {
                 items:[]
@@ -38,7 +41,8 @@
                 Indicator.open({
                     spinnerType:'fading-circle'
                 });
-                jsonp(`http://test.filmfest.hualumedia.com/getFind.php`,{
+                let catid = this.$route.query.id;
+                jsonp(`http://test.filmfest.hualumedia.com/getFindlist.php?catid=${catid}`,{
                     param:null
                 },(err,res)=>{
                     Indicator.close();
@@ -48,26 +52,21 @@
                         console.log(res);
                         if(res.status == 200){
                             res.data.map(item => {
-                                if(item.CATTYPE == 1){
-                                    item.val = 'news';
-                                }
-                                if(item.CATTYPE == 2){
-                                    item.val = 'join-info';
-                                }
+                                
                                 this.items.push(item); 
-                            });
+                            })
                         }
                     }
                     
                 });
             },
-            link(url,NEWSCATEGORY_ID){
+            link(id){
                 this.$router.push({
-                    path:`/${url}`,
+                    path:'/news-detail',
                     query:{
-                        id:NEWSCATEGORY_ID
+                        id
                     }
-                });
+                })
             }
         },
         destroyed(){
