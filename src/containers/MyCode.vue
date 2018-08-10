@@ -15,15 +15,15 @@
             <ul class="my-code-items">
                 <li class="my-code-item" v-for="(item,index) in items"
                     :class="{'gua-gou':index != items.length-1}">
-                    <div class="item-title">车牌号：{{item.plateNum}}</div>
+                    <div class="item-title">车牌号：{{item.plateNum || ''}}</div>
                     <dl flex="main:justify cross:center" class="item-time">
                         <dt flex>
                             <span flex-box="0">激活日期：</span>
-                            <span flex-box="1">{{vipBeginTime}}</span>
+                            <span flex-box="1">{{item.vipBeginTime || ''}}</span>
                         </dt>
                         <dd flex>
                             <span flex-box="0">有效期截止：</span>
-                            <span flex-box="1">{{item.vipEndTIme}}</span>
+                            <span flex-box="1">{{item.vipEndTIme || ''}}</span>
                         </dd>
                     </dl>
                     <div flex="main:center cross:center" class="item-status">
