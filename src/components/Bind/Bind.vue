@@ -21,14 +21,24 @@
                 <dl flex class="car-pai">
                     <dt flex-box="0">车牌号：</dt>
                     <dd flex-box="1" flex>
-                        <span class="pai-span">
+                        <!-- <span class="pai-span">
                             <select v-model="plateCity">
                                 <option v-for="item in plateItems" :value="item.value">{{item.text}}</option>
                             </select>
                             <i>{{cityName}}</i>
-                        </span>
+                            
+                        </span> -->
+                        <self-select class="select-province"
+                            :title="'请您选择车牌省份'"
+                            :alphabet="provinceItems"
+                            :value="province" @callBack="provinceBack"></self-select>
+                        <self-select class="select-alphabet"
+                            :title="'请您选择车牌省份字母'"
+                            :alphabet="alphabet"
+                            :value="alp" @callBack="alpBack"></self-select>
+                        
                         <span>
-                            <input type="text" name="" placeholder="请输入您的车牌号" maxlength="6" v-model="plateNum">
+                            <input type="text" name="" placeholder="请输入您的车牌号" maxlength="5" v-model="plateNum">
                         </span>
                     </dd>
                 </dl>
@@ -51,6 +61,9 @@
     import { checkPhone, setTitle } from '../../tools/operation';
     import {Toast, Indicator} from 'mint-ui';
     import cityItems from '../../../city/city.js';
+
+    import SelfSelect from '../SelfSelect';
+
     export default {
         name: 'bind',
         data(){
@@ -60,40 +73,50 @@
                 plateNum:'',
                 plateCity:'',
 
-                plateItems:[],
+                
                 captchaBtnTxt:'发送验证码',
                 captchaLoading:false,
                 timer:null,
                 code:'',
-                validCode:'XXXoooo9999'//验证码存储
+                validCode:'XXXoooo9999',//验证码存储
+                provinceItems:[],
+                province:'',
+                alphabet:[],
+                alp:''
             }
         },
         created(){
             this.code = this.$route.query.code;
-            cityItems.map(item => {
-                this.plateItems.push(item);
-            });
-            this.plateCity = cityItems[0].value;
+            
 
             this.getUserInfor();
+
+            this.setAlphabet();
         },
         computed: {
-            cityName:function(){
-                let text = cityItems[0].value;
-                this.plateItems.map(item => {
+            // cityName:function(){
+            //     let text = cityItems[0].value;
+            //     this.plateItems.map(item => {
 
-                    if(item.value == this.plateCity){
-                        console.log(item)
-                        text = item.text;
-                    }
-                });
-                return text;
-            }
+            //         if(item.value == this.plateCity){
+            //             console.log(item)
+            //             text = item.text;
+            //         }
+            //     });
+            //     return text;
+            // }
         },
         components:{
-
+            SelfSelect
         },
         methods: {
+            alpBack(item){
+                this.alp = item.text;
+            },
+            provinceBack(item){
+                console.log(item)
+                this.province = item.text;
+            },
             getUserInfor(){
                 let userInfor = JSON.parse(sessionStorage.getItem('userInfor')) || {};
                 this.openId = userInfor.openid || '';
@@ -144,7 +167,7 @@
                 let {
                     telphone,
                     captchaNum,code,
-                    cityName,
+                    province,alp,
                     plateNum,
                     openId
                 } = this;
@@ -160,7 +183,7 @@
                     Toast('请填车牌号！');
                     return false;
                 }
-                plateNum = ''+ cityName + plateNum;
+                plateNum = ''+ province + alp + plateNum;
                 if(captchaNum != this.validCode){
                     console.log(captchaNum,this.validCode)
                     Toast('验证码输入有误！');
@@ -181,7 +204,12 @@
                 // },1000)
                 //绑定code
                 openId = openId || '""';
-                $api.get(`/user/code/bind/${telphone}/${code}/${encodeURI(plateNum)}/${openId}`).then(res => {
+                $api.post('/user/code/bind',{
+                    telphone,
+                    code,
+                    plateNum,
+                    openId
+                }).then(res => {
                     Indicator.close();
 
                     if(res.code == '01'){
@@ -225,6 +253,21 @@
                 this.timeOuter = setTimeout(()=>{
                     this.validCode = 'XXXoooo9999';
                 },120000);
+            },
+            setAlphabet(){
+                let alp = '';
+                for(let i=0;i<26;i++){
+                    alp = String.fromCharCode(65+i);
+                    this.alphabet.push({
+                        text:alp,
+                        value:alp
+                    });
+                }
+                this.alp = this.alphabet[0].text;
+                cityItems.map(item => {
+                    this.provinceItems.push(item);
+                });
+                this.province = cityItems[0].text;
             }
         },
         destroyed(){

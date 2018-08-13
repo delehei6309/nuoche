@@ -41,7 +41,7 @@
         </div>
         <div class="img-box">
             <a href="">
-                <img src="../../images/home/ac_bottomBanner.png">
+                <img src="../../images/home/banner.jpg">
             </a>
         </div>
         <!-- <div v-if="phoneShow" flex="main:center cross:center" class="telphone-wrap">

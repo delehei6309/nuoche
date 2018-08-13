@@ -35,19 +35,30 @@
                         </span>
                     </dd>
                 </dl> -->
-                <dl flex class="infor-nicename">
+                <dl flex class="infor-nicename che-num">
                     <dt flex-box="0">车牌号：</dt>
-                    <dd flex-box="1">
-                        <input type="text" maxlength="7" placeholder="请输入车牌号" v-model="plateNum">
+                    <dd flex-box="1" flex="cross:center">
+                        <self-select class="select-province"
+                            :title="'请您选择车牌省份'"
+                            :alphabet="provinceItems"
+                            :value="plateProvince" @callBack="provinceBack"></self-select>
+                        <self-select class="select-alphabet"
+                            :title="'请您选择车牌省份字母'"
+                            :alphabet="alphabet"
+                            :value="alp" @callBack="alpBack"></self-select>
+                        
+                        <span>
+                            <input type="text" placeholder="请输入您的车牌号" maxlength="5" v-model="plate">
+                        </span>
                     </dd>
                 </dl>
-                <dl flex class="infor-nicename">
+                <dl flex class="infor-nicename che-type">
                     <dt flex-box="0">车型：</dt>
                     <dd flex-box="1">
                         <input type="text" maxlength="20" placeholder="请输入车型" v-model="carType">
                     </dd>
                 </dl>
-                <dl flex class="infor-nicename">
+                <dl flex class="infor-nicename che-infor">
                     <dt flex-box="0">车架号：</dt>
                     <dd flex-box="1">
                         <input type="text" maxlength="20" placeholder="请输入车架号" v-model="machineType">
@@ -93,6 +104,7 @@
     import { checkPhone, setTitle } from '../tools/operation';
     import $api from '../tools/api';
     import cityItems from '../../city/city.js';
+    import SelfSelect from '../components/SelfSelect';
     export default {
         name: 'user-infor',
         data(){
@@ -106,10 +118,17 @@
                 _plateNum:'',//取详情的完整name;
                 plateNum:'',
                 carType:'',
-                machineType:''
+                machineType:'',
+
+                provinceItems:[],
+                plateProvince:'',
+                alphabet:[],
+                alp:'',
+                plate:''
             }
         },
         created(){
+            this.setAlphabet();
             this.userInfor = JSON.parse(sessionStorage.getItem('userInfor')) || {};
             this.getUserInfor();
             //省份添加
@@ -132,12 +151,27 @@
             // }
         },
         components:{
-
+            SelfSelect
         },
         mounted(){
             //this.setMobileSelect();
         },
         methods: {
+            setAlphabet(){
+                let alp = '';
+                for(let i=0;i<26;i++){
+                    alp = String.fromCharCode(65+i);
+                    this.alphabet.push({
+                        text:alp,
+                        value:alp
+                    });
+                }
+                this.alp = this.alphabet[0].text;
+                cityItems.map(item => {
+                    this.provinceItems.push(item);
+                });
+                this.plateProvince = cityItems[0].text;
+            },
             getUserInfor(){
                 let openid = this.userInfor.openid || '""';
                 if(!openid){
@@ -175,6 +209,7 @@
                         //this._plateNum = res.data.plateNum;
                         this.getPlateNum();
                     }else{
+                        //this.dealPlateNum('冀T12345');
                         Toast(res.msg || '服务器错误！');
                     }
                 })
@@ -182,13 +217,14 @@
             submit(){
                 let { 
                     nickName, telphone, address,
-                    cityName, plateNum, carType,
-                    machineType
+                    cityName, carType,
+                    machineType,
+                    plateProvince, alp, plate
                 } = this;
-                carType = carType || '""';
-                machineType = machineType || '""';
-                address = address || '""';
-                plateNum = plateNum || '""';
+                // carType = carType || '""';
+                // machineType = machineType || '""';
+                // address = address || '""';
+                // plateNum = plateNum || '""';
                 let openId = this.userInfor.openid || '""';
                 //校验
                 if(!checkPhone(telphone)){
@@ -213,7 +249,13 @@
                 Indicator.open({
                     spinnerType:'triple-bounce'
                 });
-                $api.get(`/usercenter/update/my/${telphone}/${nickName}/${address}/${plateNum}/${carType}/${machineType}/${openId}`).then(res => {
+                let plateNum = plateProvince + alp + plate;
+                //console.log(plateNum);
+                $api.post(`/usercenter/update/my/${openId}`,{
+                    nickName, telphone, address,
+                    plateNum, carType,
+                    machineType
+                }).then(res => {
                     Indicator.close();
                     if(res.code == '01'){
                         Toast({
@@ -316,6 +358,18 @@
                         console.log(data); //返回选中的json数据
                     }
                 });
+            },
+            dealPlateNum(plateNum){
+                let platArr = plateNum.split('');
+                this.plateProvince = platArr.shift();
+                this.alp = platArr.shift();
+                this.plate = platArr.join('');
+            },
+            provinceBack(item){
+                this.plateProvince = item.text;
+            },
+            alpBack(item){
+                this.alp = item.text;
             }
         },
         destroyed(){

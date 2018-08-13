@@ -19,18 +19,6 @@
                 captchaNum:'',
                 plate:'jingA',
                 carId:'',
-                plateItems:[
-                    {
-                        value:"jingA",
-                        text:'京A'
-                    },{
-                        value:"jingB",
-                        text:'京B'
-                    },{
-                        value:"jingC",
-                        text:'京C'
-                    }
-                ],
                 captchaBtnTxt:'发送验证码',
                 captchaLoading:false,
                 timer:null,

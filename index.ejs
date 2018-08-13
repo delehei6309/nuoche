@@ -10,6 +10,20 @@
     <meta name="viewport"
           content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, viewport-fit=cover">
     <title> <%= htmlWebpackPlugin.options.title %> </title>
+    <style type="text/css">
+		@supports (bottom: constant(safe-area-inset-bottom)) {
+		    body {
+		        margin-bottom: constant(safe-area-inset-bottom);
+		    }
+		}
+		@media (device-width: 375px) and (device-height: 812px) and (-webkit-min-device-pixel-ratio : 3){
+		    @supports (bottom: constant(safe-area-inset-bottom)) {
+		        body {
+		            margin-bottom: constant(safe-area-inset-bottom);
+		        }
+		    }
+		}
+    </style>
 </head>
 <body>
 <div id="app"></div>

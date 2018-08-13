@@ -108,16 +108,26 @@
                     Toast('获取openid失败！');
                     return false;
                 }
+                let userCenter = JSON.parse(sessionStorage.getItem('userCenter'));
+                if(userCenter && openid){
+                    this.setUser(userCenter);
+                    return false;
+                }
                 $api.get(`/usercenter/init/${openid}`).then(res => {
                     if(res.code == '01'){
-                        this.telphone = res.data.telphone;
-                        this.disturb = res.data.disturb;
-                        this.vipEndTime = res.data.vipEndTime || '';
-                        this.plateNum = res.data.plateNum;
+                        let userCenter = res.data;
+                        this.setUser(userCenter);
+                        sessionStorage.setItem('userCenter',JSON.stringify(userCenter));
                     }else{
                         Toast(res.msg || '服务器错误');
                     }
                 });
+            },
+            setUser(userCenter){
+                this.telphone = userCenter.telphone;
+                this.disturb = userCenter.disturb;
+                this.vipEndTime = userCenter.vipEndTime || '';
+                this.plateNum = userCenter.plateNum;
             },
             link(url){
                 //
@@ -151,6 +161,13 @@
                             Toast('您已经开启了免打扰模式！');
                         }else{
                             Toast('您已经关闭了免打扰模式！')
+                        }
+                        //update 一下 session里面的数据
+                        let userCenter = JSON.parse(sessionStorage.getItem('userCenter'));
+                        if(userCenter){
+                            userCenter.disturb = disturb;
+                            //存储
+                            sessionStorage.setItem('userCenter',JSON.stringify(userCenter));
                         }
                     }else{
                         Toast(res.msg || '服务器错误！');

@@ -84,7 +84,7 @@
                         mapTypeControlOptions: {
                             mapTypeIds: []
                         },
-                        zoom: 13,                       //设置缩放级别
+                        zoom: 22,                       //设置缩放级别
                         draggable: true,               //设置是否可以拖拽
                         scrollwheel: false,             //设置是否可以滚动
                         disableDoubleClickZoom: true    //设置是否可以双击放大
