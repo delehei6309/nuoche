@@ -58,14 +58,18 @@
 <script>
     import './bind.less';
     import $api from '../../tools/api';
-    import { checkPhone, setTitle } from '../../tools/operation';
+    import { checkPhone, setTitle, stringToByte } from '../../tools/operation';
     import {Toast, Indicator} from 'mint-ui';
     import cityItems from '../../../city/city.js';
 
     import SelfSelect from '../SelfSelect';
 
+    import wx from '../../tools/wx';
+    import jsonp from 'jsonp';
+
     export default {
         name: 'bind',
+        props:['addressInfor'],
         data(){
             return {
                 telphone:'',
@@ -92,6 +96,8 @@
             this.getUserInfor();
 
             this.setAlphabet();
+            this.setPalteProvince();
+            
         },
         computed: {
             // cityName:function(){
@@ -120,6 +126,34 @@
             getUserInfor(){
                 let userInfor = JSON.parse(sessionStorage.getItem('userInfor')) || {};
                 this.openId = userInfor.openid || '';
+            },
+            setPalteProvince(){
+                Indicator.open({
+                    spinnerType:'fading-circle'
+                });
+                if(this.addressInfor.ad_info){
+                    let cityCode = this.addressInfor.ad_info.adcode;
+                    $api.get(`/user/code/getCity/${cityCode}`).then(res => {
+                        Indicator.close();
+                        if(res.code == '01'){
+                            res.data.provinces.map(item => {
+                                this.provinceItems.push({
+                                    value:item.code,
+                                    text:item.shortName
+                                });
+                            });
+                            let defaultProvince = res.data.defaultProvince;
+                            defaultProvince ? this.province = defaultProvince : this.province = this.provinceItems[0].text;
+                        }else{
+                            Toast(res.msg || '服务器错误！');
+                        }
+                    });
+                }else{
+                    setTimeout(()=>{
+                        this.setPalteProvince()
+                    },500);
+                }
+                
             },
             //发送验证码
             captcha(){
@@ -169,8 +203,10 @@
                     captchaNum,code,
                     province,alp,
                     plateNum,
-                    openId
+                    openId,
+                    addressInfor
                 } = this;
+                let location = addressInfor;
                 if(!checkPhone(telphone)){
                     Toast('请填写有效的手机号码！');
                     return false;
@@ -203,12 +239,21 @@
                 //     })
                 // },1000)
                 //绑定code
-                openId = openId || '""';
+                //openId = openId || '""';
+                console.log({
+                    telphone,
+                    code,
+                    plateNum,
+                    openId,
+                    location//绑码的位置信息
+                });
+                location = stringToByte(JSON.stringify(location));
                 $api.post('/user/code/bind',{
                     telphone,
                     code,
                     plateNum,
-                    openId
+                    openId,
+                    location,//绑码的位置信息
                 }).then(res => {
                     Indicator.close();
 
@@ -264,10 +309,7 @@
                     });
                 }
                 this.alp = this.alphabet[0].text;
-                cityItems.map(item => {
-                    this.provinceItems.push(item);
-                });
-                this.province = cityItems[0].text;
+                
             }
         },
         destroyed(){

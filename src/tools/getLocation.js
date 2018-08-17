@@ -1,11 +1,12 @@
 /**
  * Created by chunting on 2018/8/3.
  */
-import axios from 'axios';
 
 //import config from './config.js';
 //console.log(config)
-import {Toast} from 'mint-ui';
+import $api from './api';
+import {Toast, Indicator} from 'mint-ui';
+import jsonp from 'jsonp';
 let serverUrl = 'http://api.zhangxianfeng.com';
 let get = (path, data = {}, source = {}) => {
     data.t = new Date().getTime();
@@ -26,8 +27,7 @@ let get = (path, data = {}, source = {}) => {
         }
         return {};
     }).catch(err => {
-        console.log('err--->',err);
-        Toast('服务器错误！');
+        console.log('err--->')
     })
 };
 let get2 = (path, data = {}, source = {}) => {
@@ -48,8 +48,7 @@ let get2 = (path, data = {}, source = {}) => {
         }
         return {};
     }).catch(err => {
-        console.log('err--->',err);
-        Toast('服务器错误！');
+        console.log('err--->')
     })
 };
 let post = (path, data = {}) => {
@@ -72,8 +71,7 @@ let post = (path, data = {}) => {
             return {};
         }
     }).catch(err => {
-        console.log('err--->',err)
-        Toast('服务器错误！');
+        console.log('err--->')
     })
 };
 

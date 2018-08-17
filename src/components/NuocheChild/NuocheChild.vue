@@ -61,7 +61,7 @@
 <script>
     import './nuoche-inform.less';
     import $api from '../../tools/api';
-    import { checkPhone, setTitle } from '../../tools/operation';
+    import { checkPhone, setTitle, stringToByte } from '../../tools/operation';
     import {Toast, Indicator} from 'mint-ui';
     export default {
         name: 'nuoche-child',
@@ -69,11 +69,12 @@
         data(){
             return {
                 virtual:'',
-                code:''
+                code:'',
+                addressInfor:{}
             }
         },
         created(){
-            console.log(this.$route.query)
+            this.addressInfor = JSON.parse(sessionStorage.getItem('addressInfor')) || {};
             this.code = this.$route.query.code;
             this.getPhone(1);
             
@@ -91,13 +92,18 @@
             getPhone(isFirst){
                 
                 if(!this.code){
-                    Toast('没有码我怎么取你的信息');
+                    Toast('没有码我怎么取您的信息');
                     return false;
                 }
                 Indicator.open({
                     spinnerType:'fading-circle'
                 });
-                $api.get(`/call/getVirtualCode/${this.code}`).then(res => {
+                let location = this.addressInfor;
+                location = stringToByte(JSON.stringify(location));
+                $api.post(`/call/getVirtualCode`,{
+                    code:this.code,
+                    location
+                }).then(res => {
                     Indicator.close();
                     if(res.code == '01'){
                         this.virtual = res.data;

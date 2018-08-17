@@ -4,11 +4,11 @@
         <div flex="dir:top main:center" class="person-header">
             <dl flex>
                 <dt>
-                    <img :src="userInfor.headimgurl">
+                    <img :src="avatar">
                 </dt>
                 <dd flex="dir:top main:center">
                     <span class="user-name">
-                        <i>{{userInfor.nickname}}</i>&nbsp;&nbsp;<i v-if="plateNum">{{plateNum}}</i>
+                        <i>{{nickName}}</i>&nbsp;&nbsp;<i v-if="plateNum">{{plateNum}}</i>
                     </span>
                     <span v-if="vipEndTime" class="time">服务到期时间: {{vipEndTime}}</span>
                     <span v-if="vipEndTime == '2018'" class="time">未绑定车牌号</span>
@@ -74,7 +74,7 @@
 <script>
     import '../less/person.less';
     import Vue from 'vue';
-    import { Switch, Toast } from 'mint-ui';
+    import { Switch, Toast, Indicator } from 'mint-ui';
     import EventBus from '../tools/event-bus';
     import $api from '../tools/api';
     Vue.component(Switch.name, Switch);
@@ -88,11 +88,13 @@
                 remarksShow:false,
                 disturb:false,
                 plateNum:'',
+                avatar:'',//头像
+                nickName:'',//昵称
                 userInfor:{}
             }
         },
         created(){
-            console.log(sessionStorage.getItem('userInfor'));
+            //console.log(sessionStorage.getItem('userInfor'));
             this.getUser();
         },
         computed: {
@@ -102,18 +104,37 @@
         },
         methods: {
             getUser(){
-                this.userInfor = JSON.parse(sessionStorage.getItem('userInfor')) || {};
+                if(this.$route.query.openid && this.$route.query.nickname && this.$route.query.headimgurl){
+                    let userInfor = {};
+                    userInfor.openid = this.$route.query.openid;
+                    userInfor.headimgurl = this.$route.query.headimgurl;
+                    userInfor.nickname = this.$route.query.nickname;
+                    sessionStorage.setItem('userInfor',JSON.stringify(userInfor));
+                    this.userInfor = userInfor;
+                }else{
+                    this.userInfor = JSON.parse(sessionStorage.getItem('userInfor')) || {};
+                }
+                
+                
                 let openid = this.userInfor.openid;
                 if(!openid){
                     Toast('获取openid失败！');
                     return false;
                 }
+
+                this.nickName = this.userInfor.nickname;//注意区分大小写
+                this.avatar = this.userInfor.headimgurl;
+
                 let userCenter = JSON.parse(sessionStorage.getItem('userCenter'));
-                if(userCenter && openid){
+                if(userCenter && openid){//说明用户信息已经拿到了
                     this.setUser(userCenter);
                     return false;
                 }
+                Indicator.open({
+                    spinnerType:'fading-circle'
+                });
                 $api.get(`/usercenter/init/${openid}`).then(res => {
+                    Indicator.close();
                     if(res.code == '01'){
                         let userCenter = res.data;
                         this.setUser(userCenter);
@@ -124,10 +145,12 @@
                 });
             },
             setUser(userCenter){
-                this.telphone = userCenter.telphone;
-                this.disturb = userCenter.disturb;
-                this.vipEndTime = userCenter.vipEndTime || '';
-                this.plateNum = userCenter.plateNum;
+                this.telphone = userCenter.telphone;//手机号
+                this.disturb = userCenter.disturb;//免打扰
+                this.vipEndTime = userCenter.vipEndTime || '';//激活时间
+                this.plateNum = userCenter.plateNum;//车牌号
+                this.nickname = userCenter.nickname;//昵称
+                this.avatar = userCenter.avatar;//头像
             },
             link(url){
                 //
@@ -182,7 +205,7 @@
 
         },
         destroyed(){
-
+            Indicator.close();
         }
     }
 </script>

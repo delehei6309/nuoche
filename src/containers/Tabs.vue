@@ -1,7 +1,7 @@
 <template>
     <div flex="dir:top" class="tabs-warp">
         <router-view flex-box="1"></router-view>
-        <div class="tabs" flex-box="0" flex="dir:left main:justify">
+        <div v-if="tabShow" class="tabs" flex-box="0" flex="dir:left main:justify">
             <router-link flex="dir:top main:center cross:center" 
                 class="tab tab-home" 
                 :to="{path:'/tabs/home'}"
@@ -40,26 +40,49 @@
                     <span class="tab-text">我的</span>
                 </router-link>
         </div>
+        <div v-if="isIphoneX" flex-box="0" style="background: #fff;height:34px;"></div>
     </div>
 </template>
-
+<style lang="less">
+    .tabs-warp{
+        .tabs{
+            &.iniphonex{
+                margin-bottom:34px;
+            }
+        }
+    }
+    
+</style>
 <script>
     import '../less/tabs.less';
     export default {
         name: 'tabs',
         data(){
             return {
-                shopLink:''
+                shopLink:'',
+                isIphoneX:false
             }
         },
         created(){
-            
+            this.isIphoneX = this.checkIphoneX();
+        },
+        computed:{
+            tabShow:function(){
+                console.log(this.$route)
+                if(this.$route.query.openid && this.$route.path.indexOf('tabs/person')>-1){
+                    return false;
+                }
+                return true;
+            }
         },
         methods: {
             link(){
                 let userInfor = JSON.parse(sessionStorage.getItem('userInfor'));
                 let url = `http://test.shop.hualumedia.com/Base/wxLogin?shop=9&openid=${userInfor.openid}`;
                 window.location.href = url;
+            },
+            checkIphoneX(){
+                return /iphone/gi.test(navigator.userAgent) && (screen.height == 812 && screen.width == 375)
             }
         }
         

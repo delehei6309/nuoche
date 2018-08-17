@@ -21,20 +21,6 @@
                         <input type="text" maxlength="20" placeholder="请输入昵称" v-model="nickName">
                     </dd>
                 </dl>
-                <!-- <dl flex class="car-pai">
-                    <dt flex-box="0">车牌号：</dt>
-                    <dd flex-box="1" flex>
-                        <span class="pai-span">
-                            <select v-model="plateCity">
-                                <option v-for="item in plateItems" :value="item.value">{{item.text}}</option>
-                            </select>
-                            <i>{{cityName}}</i>
-                        </span>
-                        <span>
-                            <input type="text" name="" placeholder="请输入您的车牌号" maxlength="6" v-model="plateNum">
-                        </span>
-                    </dd>
-                </dl> -->
                 <dl flex class="infor-nicename che-num">
                     <dt flex-box="0">车牌号：</dt>
                     <dd flex-box="1" flex="cross:center">
@@ -64,13 +50,13 @@
                         <input type="text" maxlength="20" placeholder="请输入车架号" v-model="machineType">
                     </dd>
                 </dl>
-                <!-- <dl flex class="infor-city">
+                <dl flex class="infor-city">
                     <dt flex-box="0">城市：</dt>
                     <dd flex-box="1">
                         <input type="text" id="trigger" maxlength="20" placeholder="请选择省/市/区" 
-                        v-model="address" readonly>
+                        v-model="location" readonly>
                     </dd>
-                </dl> -->
+                </dl>
                 <dl flex class="infor-address">
                     <dt flex-box="0">通讯地址：</dt>
                     <dd flex-box="1">
@@ -79,18 +65,32 @@
                 </dl>
             </div>
         </div>
-        <!-- <h6>上传头像</h6>
+        <h6>上传头像</h6>
         <div class="user-upload">
             <dl flex="cross:center">
                 <dt flex>
-                    <div class="up-load"></div>
+                    <div class="up-load" 
+                        :class="{'file-loading':upLoading}">
+                        <vue-core-image-upload
+                            class="btn"
+                            inputOfFile="file"
+                            extensions="png,jpg,jpeg,gif"
+                            :credentials="false"
+                            @imageuploaded="imageuploaded"
+                            @imagechanged="imagechanged"
+                            @errorhandle="errorhandle"
+                            :max-file-size="5242880"
+                            :url="uploadUrl" >
+                        </vue-core-image-upload>
+                    </div>
                     <div class="up-view">
-                        <img src="../images/person/default.jpg">
+                        <img :src="avatar">
+                        <span v-if="upLoading" class="up-loading"></span>
                     </div>
                 </dt>
                 <dd>请上传120*120的图片尺寸<br>否则图片变形</dd>
             </dl>
-        </div> -->
+        </div>
         <div class="btns">
             <button @click.stop="submit">确认修改</button>
         </div>
@@ -105,6 +105,8 @@
     import $api from '../tools/api';
     import cityItems from '../../city/city.js';
     import SelfSelect from '../components/SelfSelect';
+    const avatar = require('../images/person/default.jpg');
+    import VueCoreImageUpload  from 'vue-core-image-upload';
     export default {
         name: 'user-infor',
         data(){
@@ -119,22 +121,41 @@
                 plateNum:'',
                 carType:'',
                 machineType:'',
+                avatar:'',
 
                 provinceItems:[],
                 plateProvince:'',
                 alphabet:[],
                 alp:'',
-                plate:''
+                plate:'',
+
+                //三级联动地址显示
+                location:'',
+                area:'',//区县id
+                city:'',//城市id
+                province:'',//省份id
+
+                upLoading:false
             }
         },
         created(){
-            this.setAlphabet();
             this.userInfor = JSON.parse(sessionStorage.getItem('userInfor')) || {};
-            this.getUserInfor();
-            //省份添加
-            cityItems.map(item => {
-                this.plateItems.push(item);
-            });
+            this.setAlphabet();
+            if(this.userInfor.openid){
+                //获取城市列表数据
+                this.getCityTree().then(res =>{
+                    console.log(res)
+                    this.getUserInfor();
+                });
+                //省份添加
+                cityItems.map(item => {
+                    this.plateItems.push(item);
+                });
+            }else{
+                Toast('获取openid失败！');
+            }
+            
+            
         },
         computed: {
             // cityName:function(){
@@ -149,12 +170,17 @@
             //     });
             //     return text;
             // }
+            uploadUrl:function(){
+                let openid = this.userInfor.openid;
+                return `${$api.serverUrl}/usercenter/load/my/${openid}`
+            }
         },
         components:{
-            SelfSelect
+            SelfSelect,
+            VueCoreImageUpload
         },
         mounted(){
-            //this.setMobileSelect();
+            
         },
         methods: {
             setAlphabet(){
@@ -186,40 +212,54 @@
                     if(res.code == '01'){
                         this.nickName = res.data.nickName;
                         this.telphone = res.data.telphone;
-                        if(res.data.address == '""'){
-                            this.address = '';
-                        }else{
-                            this.address = res.data.address;
-                        }
-                        if(res.data.carType == '""'){
-                            this.carType = '';
-                        }else{
-                            this.carType = res.data.carType;
-                        }
-                        if(res.data.machineType == '""'){
-                            this.machineType = '';
-                        }else{
-                            this.machineType = res.data.machineType;
-                        }
-                        if(res.data.plateNum == '""'){
-                            this.plateNum = '';
-                        }else{
-                            this.plateNum = res.data.plateNum;
-                        }
-                        //this._plateNum = res.data.plateNum;
-                        this.getPlateNum();
+                        this.address = res.data.address;
+                        this.carType = res.data.carType;
+                        this.machineType = res.data.machineType;
+                        this.avatar = res.data.avatar || avatar;
+                        this.province = res.data.province;
+                        this.city = res.data.city;
+                        this.area = res.data.area;
+                        //this.plateNum = res.data.plateNum;
+                        this._plateNum = res.data.plateNum;
+                        this.getPlateNum(this._plateNum);
+
+                        //选中地址联动
+                        this.changeMobileSelect();
                     }else{
                         //this.dealPlateNum('冀T12345');
                         Toast(res.msg || '服务器错误！');
                     }
                 })
             },
+            imagechanged(res){
+                console.log(res)
+                this.upLoading = true;
+            },
+            imageuploaded(res){
+                this.upLoading = false;
+                if(res.code == '01'){
+                    this.avatar = res.data;
+                }else{
+                    Toast(res.msg || '服务器错误！');
+                }
+                
+            },
+            errorhandle(res){
+                console.log(res)
+                this.upLoading = false;
+            },
             submit(){
+                if(this.upLoading){
+                    Toast('图片上传完成后再提交！');
+                    return false;
+                }
                 let { 
                     nickName, telphone, address,
                     cityName, carType,
                     machineType,
-                    plateProvince, alp, plate
+                    plateProvince, alp, plate,
+                    province,city,area,
+                    avatar
                 } = this;
                 // carType = carType || '""';
                 // machineType = machineType || '""';
@@ -254,7 +294,9 @@
                 $api.post(`/usercenter/update/my/${openId}`,{
                     nickName, telphone, address,
                     plateNum, carType,
-                    machineType
+                    machineType,
+                    province,city,area,
+                    avatar
                 }).then(res => {
                     Indicator.close();
                     if(res.code == '01'){
@@ -264,7 +306,7 @@
                         });
                         setTimeout(()=>{
                             this.$router.replace({
-                                path:'/person'
+                                path:'/tabs/person'
                             })
                         },2000);
                     }else{
@@ -273,103 +315,126 @@
                 });
             },
             getPlateNum(_plateNum){
+                _plateNum = _plateNum || '';
                 let arr = _plateNum.split('');
-                let name = arr[0];
+                let pName = arr.shift();
+                //this.plateProvince = pName;
+
                 this.plateItems.map(({value,text}) =>{
-                    if(text == name){
-                        this.plateCity = value;
+                    if(text == pName){
+                        this.plateProvince = text;
                     }
                 });
-                arr.shift();
-                this.plateNum = arr.join('');
+
+                let aNmae = arr.shift();
+
+                this.alphabet.map(({value,text}) =>{
+                    if(text == aNmae){
+                        this.alp = text;
+                    }
+                });
+                console.log('0000000',arr);
+                this.plate = arr.join('');
             },
             setMobileSelect(){
                 let that = this;
-                console.log(MobileSelect)
-                var mobileSelect = new MobileSelect({
+                let {cityData} = this;
+                this.mobileSelect = new MobileSelect({
                     trigger: '#trigger',
                     title: '城市选择',
                     wheels: [
-                        {data:[
-                            {
-                                id:'1',
-                                value:'北京市',
-                                childs:[
-                                    {
-                                        id:'11',
-                                        value:'北京市',
-                                        childs:[
-                                            {
-                                                id:'111',
-                                                value:'朝阳区'
-                                            },{
-                                                id:'111',
-                                                value:'海淀区'
-                                            },{
-                                                id:'111',
-                                                value:'丰台区'
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                id:'2',
-                                value:'河北省',
-                                childs:[
-                                    {
-                                        id:'11',
-                                        value:'石家庄市',
-                                        childs:[
-                                            {
-                                                id:'111',
-                                                value:'鹿泉区'
-                                            },{
-                                                id:'111',
-                                                value:'桥西区'
-                                            },{
-                                                id:'111',
-                                                value:'新华区'
-                                            }
-                                        ]
-                                    },{
-                                        id:'11',
-                                        value:'衡水市',
-                                        childs:[
-                                            {
-                                                id:'111',
-                                                value:'桃城区'
-                                            },{
-                                                id:'111',
-                                                value:'开发区'
-                                            },{
-                                                id:'111',
-                                                value:'故城县'
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]}
+                        {data:cityData}
                     ],
                     position:[0,0,0],
+                    keyMap: {
+                        id:'id',
+                        value: 'name',
+                        childs :'children'
+                    },
                     callback:function(indexArr, data){
-                        that.address = `${data[0].value}${data[1].value}${data[2].value}`;
+                        let provinceName = '',
+                            cityName = '',
+                            areaName = '';
+                        console.log(data[1])
+                        if(data[0]){
+                            that.province = data[0].id;
+                            provinceName = data[0].name;
+                        }
+                        if(data[1]){
+                            that.city = data[1].id;
+                            cityName = data[1].name;
+                        }
+                        if(data[2]){
+                            that.area = data[2].id;
+                            areaName = data[2].name;
+                        }
+                        that.location = `${provinceName}${cityName}${areaName}`;
                         console.log(data); //返回选中的json数据
                     }
                 });
             },
-            dealPlateNum(plateNum){
-                let platArr = plateNum.split('');
-                this.plateProvince = platArr.shift();
-                this.alp = platArr.shift();
-                this.plate = platArr.join('');
+            changeMobileSelect(){
+                if(this.mobileSelect){
+                    let {cityData,province,city,area} = this;
+                    let position = [];
+                    let idArr = [province,city,area];
+                    this.location = '';
+                    let idIndex = 0;
+                    console.log(cityData,province,city,area)
+                    let fun = (arr) => {
+                        let id = idArr[idIndex];
+                        arr.forEach((item,index) => {
+                            if(id == item.id){
+                                position.push(index);
+                                console.log(item.name)
+                                this.location = this.location + item.name;
+                                if(item.children && item.children.length>0){
+                                    idIndex ++ ;
+                                    fun(item.children)
+                                }
+                            }
+                        })
+                    };
+                    if(province){
+                        fun(cityData);
+                    }else{
+                        position = [0,0,0];
+                    }
+                    this.mobileSelect.locatePosition(0,position[0]);
+                    if(city){
+                        this.mobileSelect.locatePosition(1,position[1]);
+                    }
+                    if(area){
+                        this.mobileSelect.locatePosition(2,position[2]);
+                    }
+                    
+                }else{
+                    setTimeout(()=>{
+                        this.changeMobileSelect();
+                    },100);
+                }
             },
             provinceBack(item){
                 this.plateProvince = item.text;
             },
             alpBack(item){
                 this.alp = item.text;
+            },
+            //获取city data
+            getCityTree(){
+                let openid = this.userInfor.openid || '""';
+                return $api.get(`/usercenter/cityTree/${openid}`).then(res => {
+                    if(res.code == '01'){
+                        
+                        this.cityData = res.data;
+                        this.setMobileSelect();
+                        return res;
+                    }else{
+                        Toast(res.msg || '服务器错误！');
+                        return false;
+                    }
+                    
+                })
             }
         },
         destroyed(){

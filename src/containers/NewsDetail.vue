@@ -16,7 +16,7 @@
 <script>
     import '../less/news-detail.less';
     import {Toast, Indicator} from 'mint-ui';
-    import jsonp from 'jsonp';
+    import $api from '../tools/api';
     export default {
         name: 'news-detail',
         data(){
@@ -37,26 +37,13 @@
                 Indicator.open({
                     spinnerType:'fading-circle'
                 });
-                let id = this.$route.query.id;
-                jsonp(`http://test.filmfest.hualumedia.com/getFindContent.php?id=${id}`,{
-                    param:null
-                },(err,res)=>{
+                let newsId = this.$route.query.id;
+                let openId = this.$route.query.openId;
+                $api.get(`/news/find/${openId}/${newsId}`).then(res => {
                     Indicator.close();
-                    if (err) {
-                        Toast(err.message);
-                    } else {
-                        this.data = res;
-                    }
-                    
-                });
-            },
-            link(id){
-                this.$router.push({
-                    path:'/news-detail',
-                    query:{
-                        id
-                    }
+                    this.data = res;
                 })
+
             }
         },
         destroyed(){

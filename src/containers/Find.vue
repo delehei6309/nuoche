@@ -1,13 +1,17 @@
 <template>
-    <div class="find">
-        <div class="find-banner">
+    <div flex="dir:top" class="find">
+        <div flex-box="0" class="find-banner">
             <img src="../images/find/headerBanner.jpg">
         </div>
-        <div class="find-banner">
-            <ul>
-                <li v-for="item in items" :class="item.val" 
-                    @click="link(item.val,item.NEWSCATEGORY_ID)">{{item.NAME}}</li>
-            </ul>
+        <div flex-box="1" class="find-lists">
+            <div class="sss">
+                <mt-loadmore :bottom-method="loadBottom" :bottom-all-loaded="allLoaded" ref="loadmore">
+                    <ul>
+                        <li v-for="item in items" :class="item.val" 
+                            @click="link(item.val,item.NEWSCATEGORY_ID)">{{item.NAME}}</li>
+                    </ul>
+                </mt-loadmore>
+            </div>
         </div>
 
     </div>
@@ -17,16 +21,23 @@
     import '../less/find.less';
     import $api from '../tools/api';
     import jsonp from 'jsonp';
-    import {Toast, Indicator} from 'mint-ui';
+    import Vue from 'vue';
+    import {Toast, Indicator, Loadmore } from 'mint-ui';
+    Vue.component(Loadmore.name, Loadmore);
     export default {
         name: 'find',
         data(){
             return {
-                items:[]
+                items:[],
+                allLoaded:false,
+                userInfor:{},
+                pageSize:2,
+                pageNo:10,
+                openId:''
             }
         },
         created(){
-            this.getItems();
+            this.getUser();
         },
         computed: {
         },
@@ -34,38 +45,50 @@
 
         },
         methods: {
-            getItems(){
+            getUser(){
+                this.userInfor = JSON.parse(sessionStorage.getItem('userInfor')) || {};
+                
+                this.openId = this.userInfor.openid;
+                if(!this.openId){
+                    Toast('获取openid失败！');
+                    return false;
+                }
+                this.getItems(this.openId);
+            },
+            getItems(openId){
                 Indicator.open({
                     spinnerType:'fading-circle'
                 });
-                jsonp(`http://test.filmfest.hualumedia.com/getFind.php`,{
-                    param:null
-                },(err,res)=>{
+                let{
+                    pageNo,pageSize
+                } = this;
+                $api.get(`/news/cats/${openId}`).then(res => {
                     Indicator.close();
-                    if (err) {
-                        Toast(err.message);
-                    } else {
-                        console.log(res);
-                        if(res.status == 200){
-                            res.data.map(item => {
-                                if(item.CATTYPE == 1){
-                                    item.val = 'news';
-                                }
-                                if(item.CATTYPE == 2){
-                                    item.val = 'join-info';
-                                }
-                                this.items.push(item); 
-                            });
-                        }
+                    if(res.status == 200){
+                        res.data.map(item => {
+                            if(item.CATTYPE == 1){
+                                item.val = 'news';
+                            }else{
+                                item.val = 'join-info';
+                            }
+                            this.items.push(item); 
+                        });
+                    }else{
+                        Toast(res.msg || '服务器错误！');
                     }
-                    
                 });
             },
+            loadBottom() {
+                this.allLoaded = true;// 若数据已全部获取完毕
+                this.$refs.loadmore.onBottomLoaded();
+            },
             link(url,NEWSCATEGORY_ID){
+                console.log(url);
                 this.$router.push({
                     path:`/${url}`,
                     query:{
-                        id:NEWSCATEGORY_ID
+                        id:NEWSCATEGORY_ID,
+                        openId:this.openId
                     }
                 });
             }

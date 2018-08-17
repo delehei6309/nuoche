@@ -24,7 +24,7 @@
     import EventBus from '../tools/event-bus';
     import wx from '../tools/wx';
     import $api from '../tools/api';
-    const markIcon = require('../images/home/marker-icon3.png');
+    const markIcon = require('../images/home/marker-icon4.png');
     import {Toast, Indicator} from 'mint-ui';
     import jsonp from 'jsonp';
     export default {
@@ -84,7 +84,7 @@
                         mapTypeControlOptions: {
                             mapTypeIds: []
                         },
-                        zoom: 22,                       //设置缩放级别
+                        zoom: 13,                       //设置缩放级别
                         draggable: true,               //设置是否可以拖拽
                         scrollwheel: false,             //设置是否可以滚动
                         disableDoubleClickZoom: true    //设置是否可以双击放大
@@ -94,7 +94,7 @@
                         map: map,
                     });
                     let anchor = new qq.maps.Point(0, 0),
-                        size = new qq.maps.Size(48, 48),
+                        size = new qq.maps.Size(52, 52),
                         origin = new qq.maps.Point(0, 0),
                         markerIcon = new qq.maps.MarkerImage(
                             markIcon,
@@ -115,7 +115,7 @@
                 wx.scanQRCode();
             },
             wxConfig(){
-                jsonp("http://tt.cpostcard.com/weixinshare/getSign.php?url="+encodeURIComponent(window.parent.document.URL.split('#')[0]), null, (err, data) => {
+                jsonp("http://nuoche.zhangxianfeng.com:8085/weixinshare/getSign.php?url="+encodeURIComponent(window.parent.document.URL.split('#')[0]), null, (err, data) => {
                     //Indicator.close();
                     if (err) {
                         Toast(err.message);
@@ -170,6 +170,17 @@
                     success:function(json){
                         that.address = json.result.address;
                         EventBus.location[`${latitude},${longitude}`] = json.result.address;
+
+                        //把城市id存储起来给绑码页使用
+                        let {
+                            location,address,address_component,ad_info
+                        } = json.result;
+                        let addressInfor = {
+                            location,
+                            address,address_component,ad_info
+                        };
+                        sessionStorage.setItem('addressInfor',JSON.stringify(addressInfor));
+
                     },
                     error:function(err){
                         Toast('获取地址失败！')
@@ -202,6 +213,7 @@
 
                 
             }
+            //this.getMap()
         },
         destroyed(){
             Indicator.close();

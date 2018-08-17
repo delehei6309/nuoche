@@ -1,6 +1,6 @@
 <template>
     <div class="binding">
-        <bind v-show="status == '02'" ></bind>
+        <bind v-if="status == '02'" :addressInfor="addressInfor"></bind>
         <nuoche-inform v-if="status == '01'" :plateNum="plateNum" :disturn="disturn"></nuoche-inform>
     </div>
 </template>
@@ -11,6 +11,8 @@
     import Bind from '../components/Bind';
     import NuocheInform from '../components/NuocheChild';
     import {Toast, Indicator} from 'mint-ui';
+    import wx from '../tools/wx';
+    import jsonp from 'jsonp';
     export default {
         name: 'binding-vehicle',
         data(){
@@ -25,16 +27,17 @@
                 status:0,//01:绑定，02：未绑定
                 code1:'2348329924006570',
                 code2:'3133365161072253',
-                plateNum:''//车牌号
+                plateNum:'',//车牌号
                 
+                addressInfor:{},
+
+                disturn:false
             }
         },
         created(){
-            Indicator.open({
-                spinnerType:'fading-circle'
-                //spinnerType:'triple-bounce'//'double-bounce
-            });
-            this.getStatus();
+            
+            //先定位
+            this.getLocation();
         },
         computed: {
             // code:function(){
@@ -46,6 +49,74 @@
             NuocheInform
         },
         methods: {
+            getLocation(){
+                let addressInfor = JSON.parse(sessionStorage.getItem('addressInfor')) || {};
+                if(addressInfor.ad_info){
+                    this.setLoactionInfor(addressInfor);
+                    return false;
+                }
+                //获取定位信息
+                Indicator.open({
+                    spinnerType:'fading-circle'
+                });
+                jsonp("http://tt.cpostcard.com/weixinshare/getSign.php?url="+encodeURIComponent(window.parent.document.URL.split('#')[0]), null, (err, data) => {
+                    //Indicator.close();
+                    if (err) {
+                        Toast(err.message);
+                        Indicator.close();
+                    } else {
+                        wx.config(data);
+                        wx.getdingwei((res) => {
+                            let { latitude, longitude } = res;//latitude 
+                            this.getLocationInfor(latitude, longitude);
+                            //Indicator.close();
+                        });
+                        //this.getLocationInfor();//测试使用
+                    }
+                });
+            },
+            getLocationInfor(latitude,longitude){
+                latitude = latitude || 39.916527;
+                longitude = longitude || 116.397128;
+                let that = this;
+                let data={
+                    location:`${latitude},${longitude}`,
+                    key:"F4PBZ-OIRCW-HHURQ-ODE44-G4UTO-35FJ6",
+                    get_poi:0
+                }
+                let url = "http://apis.map.qq.com/ws/geocoder/v1/?";
+                data.output = "jsonp";  
+                $.ajax({
+                    type:"get",
+                    dataType:'jsonp',
+                    data:data,
+                    jsonp:"callback",
+                    jsonpCallback:"QQmap",
+                    url:url,
+                    success:function(json){
+                        //把城市id存储起来给绑码页使用
+                        let {
+                            location,address,address_component,ad_info
+                        } = json.result;
+                        let addressInfor = {
+                            location,
+                            address,address_component,ad_info
+                        };
+                        sessionStorage.setItem('addressInfor',JSON.stringify(addressInfor));
+                        
+                        that.setLoactionInfor(addressInfor);
+                    },
+                    error:function(err){
+                        Toast('获取地址失败！');
+                        Indicator.close();
+                    }
+
+                })
+            },
+            setLoactionInfor(addressInfor){
+                this.addressInfor = addressInfor;
+                this.getStatus();
+            },
             getStatus(){
                 this.code = this.$route.query.code;
                 // if(code == this.code1){
@@ -66,6 +137,7 @@
                         setTitle('绑定挪车码');
                     }else if(res.code == '01'){
                         this.status = res.code;
+                        this.disturn = res.data.disturn;
                         this.$router.replace({
                             path:'/nuoche-inform',
                             query:{
