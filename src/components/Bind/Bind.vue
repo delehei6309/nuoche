@@ -153,7 +153,7 @@
             setPalteProvince(){
                 let cityCode = '""';
                 if(this.addressInfor.ad_info){
-                    let cityCode = this.addressInfor.ad_info.adcode;
+                    cityCode = this.addressInfor.ad_info.adcode;
                 }
                 
                 Indicator.open({
