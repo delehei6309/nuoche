@@ -151,41 +151,35 @@
                 
             },
             setPalteProvince(){
+                let cityCode = '""';
                 if(this.addressInfor.ad_info){
-                    Indicator.open({
-                        spinnerType:'fading-circle'
-                    });
                     let cityCode = this.addressInfor.ad_info.adcode;
-                    $api.get(`/user/code/getCity/${cityCode}`).then(res => {
-                        Indicator.close();
-                        if(res.code == '01'){
-                            res.data.provinces.map(item => {
-                                this.provinceItems.push({
-                                    value:item.code,
-                                    text:item.shortName
-                                });
-                            });
-                            let defaultProvinceItem = res.data.defaultProvince;
-                            if(defaultProvinceItem){
-                                let defaultProvince = defaultProvinceItem.shortName;
-                                defaultProvince ? this.province = defaultProvince : this.province = this.provinceItems[0].text;
-                            }
-                        }else{
-                            Toast(res.msg || '服务器错误！');
-                        }
-                    });
-                }else{
-                    // setTimeout(()=>{
-                    //     this.setPalteProvince()
-                    // },500);
-                    cityItems.map(item => {
-                        this.provinceItems.push({
-                            value:item.value,
-                            text:item.text
-                        });
-                        this.province = this.provinceItems[0].text;
-                    })
                 }
+                
+                Indicator.open({
+                    spinnerType:'fading-circle'
+                });
+                
+                $api.get(`/user/code/getCity/${cityCode}`).then(res => {
+                    Indicator.close();
+                    if(res.code == '01'){
+                        res.data.provinces.map(item => {
+                            this.provinceItems.push({
+                                value:item.code,
+                                text:item.shortName
+                            });
+                        });
+                        let defaultProvinceItem = res.data.defaultProvince;
+                        if(defaultProvinceItem){
+                            this.province = defaultProvinceItem.shortName;
+                            
+                        }else{
+                            this.province = this.provinceItems[0].text;
+                        }
+                    }else{
+                        Toast(res.msg || '服务器错误！');
+                    }
+                });
                 
             },
             //发送验证码

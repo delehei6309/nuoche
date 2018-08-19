@@ -138,11 +138,6 @@
                 //this.status = '02';
                 //绑定验证
                 let code = this.code;
-                if(!$device.isWeixin){
-                    Indicator.open({
-                        spinnerType:'fading-circle'
-                    });
-                }
                 return  $api.get(`/user/code/isBind/${code}`).then(res => {
                     Indicator.close();
                     if(res.code == '02'){

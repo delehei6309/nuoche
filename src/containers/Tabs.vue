@@ -76,8 +76,9 @@
         },
         methods: {
             link(){
-                let userInfor = JSON.parse(sessionStorage.getItem('userInfor'));
-                let url = `http://test.shop.hualumedia.com/Base/wxLogin?shop=9&openid=${userInfor.openid}`;
+                //let userInfor = JSON.parse(sessionStorage.getItem('userInfor'));
+                let qptopid = 'o4Xosvyya6tkbMmxJg7Vd0wLvWyc';
+                let url = `http://test.shop.hualumedia.com/Base/wxLogin?shop=9&qptopid=${qptopid}`;
                 window.location.href = url;
             },
             checkIphoneX(){
