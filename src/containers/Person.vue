@@ -6,12 +6,12 @@
                 <dt>
                     <img :src="avatar">
                 </dt>
-                <dd flex="dir:top main:center">
+                <dd flex="dir:top main:justify">
                     <span class="user-name">
                         <i>{{nickName}}</i>&nbsp;&nbsp;<i v-if="plateNum">{{plateNum}}</i>
                     </span>
                     <span v-if="vipEndTime" class="time">服务到期时间: {{vipEndTime}}</span>
-                    <span v-if="vipEndTime == '2018'" class="time">未绑定车牌号</span>
+                    <span v-if="!vipEndTime && titShow" class="time">未绑定车牌号</span>
                 </dd>
             </dl>
             <div class="person-setting" @click.stop="link('user-infor')"></div>
@@ -28,7 +28,7 @@
                     <span>免打扰</span>
                     <!-- <span class="switch" :class="{'switch-closed':!switchStatus}"
                         @click.stop="switchStatus = !switchStatus"></span> -->
-                    <mt-switch v-model="disturb" @change="switchChange"></mt-switch>
+                    <mt-switch v-model="disturbV" @change="switchChange"></mt-switch>
                 </li>
                 
                 
@@ -86,15 +86,16 @@
                 vipEndTime:'',
                 switchStatus:true,
                 remarksShow:false,
-                disturb:false,
+                disturb:true,//true 开关关闭，允许打扰
+                disturbV:false,
                 plateNum:'',
                 avatar:'',//头像
                 nickName:'',//昵称
-                userInfor:{}
+                userInfor:{},
+                titShow:false
             }
         },
         created(){
-            //console.log(sessionStorage.getItem('userInfor'));
             this.getUser();
         },
         computed: {
@@ -104,11 +105,11 @@
         },
         methods: {
             getUser(){
-                if(this.$route.query.openid && this.$route.query.nickname && this.$route.query.headimgurl){
+                if(this.$route.query.openid){
                     let userInfor = {};
                     userInfor.openid = this.$route.query.openid;
                     userInfor.headimgurl = this.$route.query.headimgurl;
-                    userInfor.nickname = this.$route.query.nickname;
+                    userInfor.nickname = this.$route.query.nickname;//注意区分大小写
                     sessionStorage.setItem('userInfor',JSON.stringify(userInfor));
                     this.userInfor = userInfor;
                 }else{
@@ -122,10 +123,13 @@
                     return false;
                 }
 
-                this.nickName = this.userInfor.nickname;//注意区分大小写
+                this.nickName = this.userInfor.nickname;
                 this.avatar = this.userInfor.headimgurl;
 
                 let userCenter = JSON.parse(sessionStorage.getItem('userCenter'));
+                let pageFrom = this.$route.query.pageFrom;
+                let pageFromEvn = EventBus.pageFromEvn;
+                EventBus.pageFromEvn = '';
                 if(userCenter && openid){//说明用户信息已经拿到了
                     this.setUser(userCenter);
                     return false;
@@ -147,10 +151,18 @@
             setUser(userCenter){
                 this.telphone = userCenter.telphone;//手机号
                 this.disturb = userCenter.disturb;//免打扰
+                this.disturbV = !userCenter.disturb;//免打扰
                 this.vipEndTime = userCenter.vipEndTime || '';//激活时间
                 this.plateNum = userCenter.plateNum;//车牌号
-                this.nickname = userCenter.nickname;//昵称
-                this.avatar = userCenter.avatar;//头像
+                if(userCenter.nickName){
+                    this.nickName = userCenter.nickName;//昵称
+                }
+                if(userCenter.avatar){
+                    this.avatar = userCenter.avatar;//头像
+                }
+                if(!this.vipEndTime){
+                    this.titShow = true;
+                }
             },
             link(url){
                 //
@@ -170,8 +182,8 @@
                 this.remarksShow = false;
             },
             switchChange(checked){
-                let disturb = 0;
-                this.disturb ? disturb = 1 : '' ;
+                let disturb = 1;
+                this.disturbV ? disturb = 0 : '' ;
                 let openId = this.userInfor.openid || '""';
                 if(!openId){
                     Toast('获取openId失败！');
@@ -181,9 +193,9 @@
                 $api.get(`/usercenter/setDisturb/${disturb}/${openId}`).then(res => {
                     if(res.code == '01'){
                         if(disturb){
-                            Toast('您已经开启了免打扰模式！');
+                            Toast('您已经关闭了免打扰模式！');
                         }else{
-                            Toast('您已经关闭了免打扰模式！')
+                            Toast('您已经开启了免打扰模式！');
                         }
                         //update 一下 session里面的数据
                         let userCenter = JSON.parse(sessionStorage.getItem('userCenter'));
@@ -204,6 +216,7 @@
         mounted(){
 
         },
+        
         destroyed(){
             Indicator.close();
         }

@@ -3,8 +3,6 @@
  */
 import wx from 'weixin-js-sdk';
 import $api from './api';
-import jsonp from 'jsonp';
-console.log(jsonp);
 let config = (options) => {
     wx.config({
         debug: false,

@@ -6,7 +6,6 @@
 //console.log(config)
 import $api from './api';
 import {Toast, Indicator} from 'mint-ui';
-import jsonp from 'jsonp';
 let serverUrl = 'http://api.zhangxianfeng.com';
 let get = (path, data = {}, source = {}) => {
     data.t = new Date().getTime();

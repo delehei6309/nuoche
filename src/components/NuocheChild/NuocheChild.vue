@@ -27,7 +27,7 @@
                     因事情较忙,停车比较匆忙，如果阻挡了您的爱车通过，您可以点击下方按钮通知我，给您带来的不便敬请谅解
                 </dd>
             </dl>
-            <div class="btn" v-if="disturn">
+            <div class="btn" v-if="!disturn">
                 <button @click.stop="showTit">拨打车主电话</button>
             </div>
             <div class="btn" v-else>

@@ -25,7 +25,6 @@
 
 <script>
     import '../less/news.less';
-    //import jsonp from 'jsonp';
     import $api from '../tools/api';
     import Vue from 'vue';
     import {Toast, Indicator, Loadmore } from 'mint-ui';
@@ -38,7 +37,7 @@
                 allLoaded:false,
                 pageNo:1,
                 pageSize:10,
-                count:0,
+                pageCount:0,
                 openId:''
             }
         },
@@ -49,10 +48,10 @@
             this.getItems()
         },
         computed: {
-            pageCount:function(){
-                let { pageSize, count } = this;
-                return Math.ceil(count/pageSize);
-            }
+            // pageCount:function(){
+            //     let { pageSize, count } = this;
+            //     return Math.ceil(count/pageSize);
+            // }
         },
         components:{
 
@@ -73,7 +72,7 @@
                             
                             this.items.push(item); 
                         });
-                        this.count = res.data.pageCount;
+                        this.pageCount = res.data.pageCount;
                     }else{
                         Toast(res.msg || '服务器错误！');
                     }

@@ -20,7 +20,6 @@
 <script>
     import '../less/find.less';
     import $api from '../tools/api';
-    import jsonp from 'jsonp';
     import Vue from 'vue';
     import {Toast, Indicator, Loadmore } from 'mint-ui';
     Vue.component(Loadmore.name, Loadmore);

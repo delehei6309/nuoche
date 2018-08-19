@@ -26,7 +26,6 @@
     import $api from '../tools/api';
     const markIcon = require('../images/home/marker-icon4.png');
     import {Toast, Indicator} from 'mint-ui';
-    import jsonp from 'jsonp';
     export default {
         name: 'home',
         data(){
@@ -38,8 +37,7 @@
         },
         created(){
             if($device.isWeixin){
-                this.getUser();
-
+                this.dealSession();
                 if(!EventBus.location){
                     Indicator.open({
                         spinnerType:'fading-circle',
@@ -61,16 +59,6 @@
 
         },
         methods: {
-            getUser(){
-                if(this.$route.query.openid && this.$route.query.nickname){
-                    let userInfor = {};
-                    userInfor.openid = this.$route.query.openid;
-                    userInfor.headimgurl = this.$route.query.headimgurl;
-                    userInfor.nickname = this.$route.query.nickname;
-                    sessionStorage.setItem('userInfor',JSON.stringify(userInfor));
-                }
-                
-            },
             getMap(latitude,longitude){
                 latitude = latitude || 39.916527;
                 longitude = longitude || 116.397128;
@@ -115,14 +103,28 @@
                 wx.scanQRCode();
             },
             wxConfig(){
-                jsonp("http://nuoche.zhangxianfeng.com:8085/weixinshare/getSign.php?url="+encodeURIComponent(window.parent.document.URL.split('#')[0]), null, (err, data) => {
+                /*jsonp("http://nuoche.zhangxianfeng.com:8085/weixinshare/getSign.php?url="+encodeURIComponent(window.parent.document.URL.split('#')[0]), null, (err, data) => {
                     //Indicator.close();
                     if (err) {
                         Toast(err.message);
                     } else {
                         wx.config(data);
                     }
+                });*/
+                let url = window.location.href;
+                $api.get('/wechat/js',{
+                    url
+                }).then(res => {
+                    if(res.code == '01'){
+                        wx.config(res.data);
+                        //微信定位
+                        this.wxLocation();
+                    }else{
+                        Indicator.close();
+                        Toast(res.msg || '服务器错误！');
+                    }
                 });
+                
             },
             getRoute(){
                 this.code = this.$route.query.code;
@@ -130,7 +132,27 @@
                     //Toast('这里不能访问！！！')
                 }
             },
-
+            wxLocation(){
+                if(EventBus.location){
+                    let {latitude, longitude} = EventBus.location;
+                    // let {latitude, longitude} = {
+                    //     latitude:39.926224,
+                    //     longitude:116.219721
+                    // };
+                    this.getMap(latitude, longitude);
+                }else{
+                    wx.getdingwei((res) => {
+                        let { latitude, longitude } = res;//latitude 纬度
+                        //存储定位信息
+                        EventBus.location = {
+                            latitude,longitude
+                        };
+                        EventBus.location[`${latitude},${longitude}`] = '';
+                        this.getMap(latitude, longitude);
+                        Indicator.close();
+                    });
+                }
+            },
             getLocation(latitude,longitude){
                 let that = this;
                 if(EventBus.location){
@@ -187,32 +209,49 @@
                     }
 
                 })
+            },
+            dealSession(){
+                let that = this;
+                window.addEventListener("storage", function(event){ 
+                    if(!event.newValue){ 
+                        return ; 
+                    } 
+                    if(event.key == "getSession"){ 
+                        localStorage.setItem("storeSessionData", sessionStorage.getItem("userInfor")); 
+                        localStorage.removeItem("storeSessionData"); 
+                    } 
+                    if(event.key == "storeSessionData"){ 
+                        sessionStorage.setItem("userInfor", event.newValue); 
+                        that.userInfor = JSON.parse(sessionStorage.getItem("userInfor"));
+                        localStorage.removeItem("getSession"); 
+                    } 
+                    if(event.key == "updateSession"){ 
+                        sessionStorage.setItem("userInfor", event.newValue); 
+                        that.userInfor = JSON.parse(sessionStorage.getItem("userInfor"));
+                        localStorage.removeItem("updateSession"); 
+                    }
+                });
+                if(this.$route.query.openid){
+                    let userInfor = {};
+                    userInfor.openid = this.$route.query.openid;
+                    userInfor.headimgurl = this.$route.query.headimgurl;
+                    userInfor.nickname = this.$route.query.nickname;
+
+                    sessionStorage.setItem("userInfor", JSON.stringify(userInfor));  
+                    localStorage.setItem("updateSession",JSON.stringify(userInfor));
+
+                    return userInfor;
+                }
+                if(!sessionStorage.getItem("userInfor")){ 
+                    localStorage.setItem("getSession", Date.now()); 
+                }else{ 
+                    this.userInfor = JSON.parse(sessionStorage.getItem("userInfor")); 
+                } 
+                
             }
         },
         mounted(){
-            if($device.isWeixin){
-                if(EventBus.location){
-                    let {latitude, longitude} = EventBus.location;
-                    // let {latitude, longitude} = {
-                    //     latitude:39.926224,
-                    //     longitude:116.219721
-                    // };
-                    this.getMap(latitude, longitude);
-                }else{
-                    wx.getdingwei((res) => {
-                        let { latitude, longitude } = res;//latitude 纬度
-                        //存储定位信息
-                        EventBus.location = {
-                            latitude,longitude
-                        };
-                        EventBus.location[`${latitude},${longitude}`] = '';
-                        this.getMap(latitude, longitude);
-                        Indicator.close();
-                    });
-                }
-
-                
-            }
+            
             //this.getMap()
         },
         destroyed(){

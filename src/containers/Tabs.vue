@@ -68,7 +68,6 @@
         },
         computed:{
             tabShow:function(){
-                console.log(this.$route)
                 if(this.$route.query.openid && this.$route.path.indexOf('tabs/person')>-1){
                     return false;
                 }

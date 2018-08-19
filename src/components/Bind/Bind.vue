@@ -65,7 +65,6 @@
     import SelfSelect from '../SelfSelect';
 
     import wx from '../../tools/wx';
-    import jsonp from 'jsonp';
 
     export default {
         name: 'bind',
@@ -124,14 +123,38 @@
                 this.province = item.text;
             },
             getUserInfor(){
-                let userInfor = JSON.parse(sessionStorage.getItem('userInfor')) || {};
-                this.openId = userInfor.openid || '';
+                let that = this;
+                window.addEventListener("storage", function(event){ 
+                    if(!event.newValue){ 
+                        return ; 
+                    } 
+                    if(event.key == "getSession"){ 
+                        localStorage.setItem("storeSessionData", sessionStorage.getItem("userInfor")); 
+                        localStorage.removeItem("storeSessionData"); 
+                    } 
+                    if(event.key == "storeSessionData"){ 
+                        sessionStorage.setItem("userInfor", event.newValue); 
+                        that.userInfor = JSON.parse(sessionStorage.getItem("userInfor"));
+                        localStorage.removeItem("getSession"); 
+                    } 
+                    if(event.key == "updateSession"){ 
+                        sessionStorage.setItem("userInfor", event.newValue); 
+                        that.userInfor = JSON.parse(sessionStorage.getItem("userInfor"));
+                        localStorage.removeItem("updateSession"); 
+                    }
+                });
+                if(!sessionStorage.getItem("userInfor")){ 
+                    localStorage.setItem("getSession", Date.now()); 
+                }else{ 
+                    this.userInfor = JSON.parse(sessionStorage.getItem("userInfor")); 
+                } 
+                
             },
             setPalteProvince(){
-                Indicator.open({
-                    spinnerType:'fading-circle'
-                });
                 if(this.addressInfor.ad_info){
+                    Indicator.open({
+                        spinnerType:'fading-circle'
+                    });
                     let cityCode = this.addressInfor.ad_info.adcode;
                     $api.get(`/user/code/getCity/${cityCode}`).then(res => {
                         Indicator.close();
@@ -142,16 +165,26 @@
                                     text:item.shortName
                                 });
                             });
-                            let defaultProvince = res.data.defaultProvince;
-                            defaultProvince ? this.province = defaultProvince : this.province = this.provinceItems[0].text;
+                            let defaultProvinceItem = res.data.defaultProvince;
+                            if(defaultProvinceItem){
+                                let defaultProvince = defaultProvinceItem.shortName;
+                                defaultProvince ? this.province = defaultProvince : this.province = this.provinceItems[0].text;
+                            }
                         }else{
                             Toast(res.msg || '服务器错误！');
                         }
                     });
                 }else{
-                    setTimeout(()=>{
-                        this.setPalteProvince()
-                    },500);
+                    // setTimeout(()=>{
+                    //     this.setPalteProvince()
+                    // },500);
+                    cityItems.map(item => {
+                        this.provinceItems.push({
+                            value:item.value,
+                            text:item.text
+                        });
+                        this.province = this.provinceItems[0].text;
+                    })
                 }
                 
             },
@@ -203,9 +236,11 @@
                     captchaNum,code,
                     province,alp,
                     plateNum,
-                    openId,
+                    //openId,
                     addressInfor
                 } = this;
+                //console.log(this.userInfor)
+                let openId = this.userInfor.openid || '';
                 let location = addressInfor;
                 if(!checkPhone(telphone)){
                     Toast('请填写有效的手机号码！');
@@ -228,33 +263,15 @@
                 Indicator.open({
                     spinnerType:'triple-bounce'
                 });
-                //模拟
-                // setTimeout(()=>{
-                //     Indicator.close();
-                //     this.$router.push({
-                //         path:'/nuoche-inform',
-                //         query:{
-                //             code:this.code
-                //         }
-                //     })
-                // },1000)
-                //绑定code
-                //openId = openId || '""';
-                console.log({
+                location = stringToByte(JSON.stringify(location));
+                let params = {
                     telphone,
                     code,
                     plateNum,
                     openId,
                     location//绑码的位置信息
-                });
-                location = stringToByte(JSON.stringify(location));
-                $api.post('/user/code/bind',{
-                    telphone,
-                    code,
-                    plateNum,
-                    openId,
-                    location,//绑码的位置信息
-                }).then(res => {
+                };
+                $api.post('/user/code/bind',params).then(res => {
                     Indicator.close();
 
                     if(res.code == '01'){
@@ -271,7 +288,7 @@
                                     })
                                 },2000);
                                 
-                            }if(res.code == '02'){
+                            }else if(res.code == '02'){
                                 //未关注
                                 this.$router.replace({
                                     path:'/guan-zhu',
@@ -313,7 +330,7 @@
             }
         },
         destroyed(){
-
+            Indicator.close();
         }
     }
 </script>

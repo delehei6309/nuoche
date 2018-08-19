@@ -7,12 +7,12 @@
 
 <script>
     import $api from '../tools/api';
+    import $device from '../tools/device';
     import { checkPhone, setTitle } from '../tools/operation';
     import Bind from '../components/Bind';
     import NuocheInform from '../components/NuocheChild';
     import {Toast, Indicator} from 'mint-ui';
     import wx from '../tools/wx';
-    import jsonp from 'jsonp';
     export default {
         name: 'binding-vehicle',
         data(){
@@ -36,8 +36,14 @@
         },
         created(){
             
-            //先定位
-            this.getLocation();
+            
+            if($device.isWeixin){
+                //先定位
+                this.getLocation();
+            }else{
+                this.getStatus();
+            }
+            
         },
         computed: {
             // code:function(){
@@ -59,19 +65,21 @@
                 Indicator.open({
                     spinnerType:'fading-circle'
                 });
-                jsonp("http://tt.cpostcard.com/weixinshare/getSign.php?url="+encodeURIComponent(window.parent.document.URL.split('#')[0]), null, (err, data) => {
-                    //Indicator.close();
-                    if (err) {
-                        Toast(err.message);
-                        Indicator.close();
-                    } else {
-                        wx.config(data);
+                let url = window.location.href;
+                $api.get('/wechat/js',{
+                    url
+                }).then(res => {
+                    if(res.code == '01'){
+                        wx.config(res.data);
+                        //微信定位
                         wx.getdingwei((res) => {
                             let { latitude, longitude } = res;//latitude 
                             this.getLocationInfor(latitude, longitude);
                             //Indicator.close();
                         });
-                        //this.getLocationInfor();//测试使用
+                    }else{
+                        Indicator.close();
+                        Toast(res.msg || '服务器错误！');
                     }
                 });
             },
@@ -130,7 +138,12 @@
                 //this.status = '02';
                 //绑定验证
                 let code = this.code;
-               return  $api.get(`/user/code/isBind/${code}`).then(res => {
+                if(!$device.isWeixin){
+                    Indicator.open({
+                        spinnerType:'fading-circle'
+                    });
+                }
+                return  $api.get(`/user/code/isBind/${code}`).then(res => {
                     Indicator.close();
                     if(res.code == '02'){
                         this.status = res.code;//01已绑定;02未绑定

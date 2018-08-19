@@ -4,7 +4,8 @@
             <dl flex="main:justify">
                 <dt flex="dir:top">
                     <span>您好</span>
-                    <span v-if="plateCount">您此微信下有{{plateCount}}张挪车券！</span>
+                    <span v-if="totalCount>0">您此微信下有{{totalCount}}张挪车券！</span>
+                    <span v-if="titSHow">暂无挪车码！</span>
                 </dt>
                 <dd>
                     <img src="../images/person/carCode_right.png">
@@ -48,7 +49,6 @@
     Vue.component(Loadmore.name, Loadmore);
     import EventBus from '../tools/event-bus';
     import $api from '../tools/api';
-    //import jsonp from 'jsonp';
     export default {
         name: 'my-code',
         data(){
@@ -56,9 +56,11 @@
                 items:[],
                 pageNo:1,
                 pageSize:10,
-                count:0,
+                pageCount:0,
                 vipBeginTime:'',
-                allLoaded:false
+                allLoaded:false,
+                titSHow:false,
+                totalCount:0
             }
         },
         created(){
@@ -66,13 +68,13 @@
             this.getUser();
         },
         computed: {
-            plateCount:function(){
-                return this.items.length;
-            },
-            pageCount:function(){
-                let { pageSize, count } = this;
-                return Math.ceil(count/pageSize);
-            }
+            // plateCount:function(){
+            //     return this.items.length;
+            // },
+            // pageCount:function(){
+            //     let { pageSize, count } = this;
+            //     return Math.ceil(count/pageSize);
+            // }
         },
         components:{
 
@@ -97,10 +99,14 @@
                     Indicator.close();
                     if(res.code == '01'){
                         //plateNum,vipBeginTime，vipEndTIme,status
-                        this.count = res.data.pageCount;
+                        this.pageCount = res.data.pageCount;
+                        this.totalCount = res.data.totalCount;
                         res.data.mycodes.map(item => {
                             this.items.push(item);
                         });
+                        if(this.totalCount <= 0){
+                            this.titSHow = true;
+                        }
                     }else{
                         Toast(res.msg || '服务器错误！');
                     }

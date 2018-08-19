@@ -79,12 +79,12 @@
                             @imageuploaded="imageuploaded"
                             @imagechanged="imagechanged"
                             @errorhandle="errorhandle"
-                            :max-file-size="5242880"
+                            :max-file-size="10485760"
                             :url="uploadUrl" >
                         </vue-core-image-upload>
                     </div>
                     <div class="up-view">
-                        <img :src="avatar">
+                        <img :src="avatar" ref="imgWrap">
                         <span v-if="upLoading" class="up-loading"></span>
                     </div>
                 </dt>
@@ -102,6 +102,7 @@
     import MobileSelect from 'mobile-select';
     import {Toast, Indicator} from 'mint-ui';
     import { checkPhone, setTitle } from '../tools/operation';
+    import EventBus from '../tools/event-bus';
     import $api from '../tools/api';
     import cityItems from '../../city/city.js';
     import SelfSelect from '../components/SelfSelect';
@@ -135,7 +136,9 @@
                 city:'',//城市id
                 province:'',//省份id
 
-                upLoading:false
+                upLoading:false,
+
+                avatarStatu:'default'
             }
         },
         created(){
@@ -215,7 +218,14 @@
                         this.address = res.data.address;
                         this.carType = res.data.carType;
                         this.machineType = res.data.machineType;
-                        this.avatar = res.data.avatar || avatar;
+                        if(res.data.avatar){
+                            this.avatar = res.data.avatar;
+                            this.avatarStatu = 'avatar';
+                        }else{
+                            this.avatar = avatar;
+                            this.avatarStatu = 'default';
+                        }
+                        
                         this.province = res.data.province;
                         this.city = res.data.city;
                         this.area = res.data.area;
@@ -236,9 +246,11 @@
                 this.upLoading = true;
             },
             imageuploaded(res){
-                this.upLoading = false;
                 if(res.code == '01'){
                     this.avatar = res.data;
+                    this.$refs.imgWrap.onload = ()=>{
+                        this.upLoading = false;
+                    }
                 }else{
                     Toast(res.msg || '服务器错误！');
                 }
@@ -261,6 +273,9 @@
                     province,city,area,
                     avatar
                 } = this;
+                if(this.avatarStatu == 'default'){
+                    avatar = '';
+                }
                 // carType = carType || '""';
                 // machineType = machineType || '""';
                 // address = address || '""';
@@ -305,8 +320,13 @@
                             duration:2000
                         });
                         setTimeout(()=>{
+                            let pageFromEvn = (new Date).getTime();
+                            EventBus.pageFromEvn = pageFromEvn;
                             this.$router.replace({
-                                path:'/tabs/person'
+                                path:'/tabs/person',
+                                query:{
+                                    pageFrom:pageFromEvn
+                                }
                             })
                         },2000);
                     }else{
