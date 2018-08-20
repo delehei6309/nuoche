@@ -85,7 +85,8 @@
                 provinceItems:[],
                 province:'',
                 alphabet:[],
-                alp:''
+                alp:'',
+                userInfor:{}
             }
         },
         created(){
@@ -171,10 +172,11 @@
                         });
                         let defaultProvinceItem = res.data.defaultProvince;
                         if(defaultProvinceItem){
-                            this.province = defaultProvinceItem.shortName;
-                            
+                            this.province = defaultProvinceItem.shortName || this.provinceItems[0].text;
+                            this.alp = defaultProvinceItem.letter || this.alphabet[0].text;
                         }else{
                             this.province = this.provinceItems[0].text;
+                            this.alp = this.alphabet[0].text;
                         }
                     }else{
                         Toast(res.msg || '服务器错误！');
@@ -234,7 +236,10 @@
                     addressInfor
                 } = this;
                 //console.log(this.userInfor)
-                let openId = this.userInfor.openid || '';
+                let openId = '';
+                if(this.userInfor){
+                    openId = this.userInfor.openid;
+                }
                 let location = addressInfor;
                 if(!checkPhone(telphone)){
                     Toast('请填写有效的手机号码！');
@@ -319,7 +324,7 @@
                         value:alp
                     });
                 }
-                this.alp = this.alphabet[0].text;
+                //this.alp = this.alphabet[0].text;
                 
             }
         },
