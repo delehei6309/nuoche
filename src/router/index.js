@@ -42,7 +42,8 @@ let routes = [
                 path: 'home',
                 name: 'home',
                 meta: {
-                    title: '首页'
+                    title: '首页',
+                    keepAlive:true
                 },
                 component: Home
             },{
@@ -63,7 +64,8 @@ let routes = [
                 path: 'person',
                 name: 'person',
                 meta: {
-                    title: '我的'
+                    title: '我的',
+                    keepAlive:true
                 },
                 component: Person
             }

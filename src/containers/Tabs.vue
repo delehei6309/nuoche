@@ -1,6 +1,10 @@
 <template>
     <div flex="dir:top" class="tabs-warp">
-        <router-view flex-box="1"></router-view>
+        <!-- <router-view flex-box="1"></router-view> -->
+        <keep-alive>
+            <router-view v-if="$route.meta.keepAlive" flex-box="1"></router-view>
+        </keep-alive>
+        <router-view v-if="!$route.meta.keepAlive" flex-box="1"></router-view>
         <div v-if="tabShow" class="tabs" flex-box="0" flex="dir:left main:justify">
             <router-link flex="dir:top main:center cross:center" 
                 class="tab tab-home" 

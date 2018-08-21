@@ -91,6 +91,10 @@
                             anchor
                         );
                     marker.setIcon(markerIcon);
+                    setTimeout(()=>{
+                        Indicator.close();
+                    },50);
+
                 }else {
                     setTimeout(this.getMap,200);
                 }
@@ -149,7 +153,7 @@
                         };
                         EventBus.location[`${latitude},${longitude}`] = '';
                         this.getMap(latitude, longitude);
-                        Indicator.close();
+                        //Indicator.close();
                     });
                 }
             },
