@@ -12,7 +12,7 @@
                 <dl flex class="captcha">
                     <dt flex-box="0">验证码：</dt>
                     <dd flex-box="1">
-                        <input type="tel" name="" placeholder="请输入您的验证码" maxlength="6" v-model="captchaNum">
+                        <input type="tel" name="" placeholder="请输入您的验证码" maxlength="6" v-model="validCode">
                     </dd>
                     <dd flex-box="0">
                         <button @click.stop="captcha" :disabled="captchaLoading">{{captchaBtnTxt}}</button>
@@ -72,7 +72,7 @@
         data(){
             return {
                 telphone:'',
-                captchaNum:'',
+                validCode:'',
                 plateNum:'',
                 plateCity:'',
 
@@ -81,7 +81,6 @@
                 captchaLoading:false,
                 timer:null,
                 code:'',
-                validCode:'XXXoooo9999',//验证码存储
                 provinceItems:[],
                 province:'',
                 alphabet:[],
@@ -197,21 +196,17 @@
                 if(this.timer){
                     clearTimeout(this.timer);
                 }
-
-                this.sendCode(60);
-                $api.get(`/user/code/sendValidCode/${telphone}`,{
-                    
-                }).then(res => {
+                this.captchaLoading = true;
+                $api.get(`/user/code/sendValidCode/${telphone}`).then(res => {
                     if(res.code == '01'){
-                        this.validCode = res.data;
-                        this.clearValidCode();
+                        this.sendCode(60);
                     }else{
-                        Toast(res.msg);
+                        Toast(res.msg || '服务器错误！');
+                        this.captchaLoading = false;
                     }
                 });
             },
             sendCode(time){
-                this.captchaLoading = true;
                 //time = time || 60;
                 this.captchaBtnTxt = `${time}s`;
                 if(time > 0){
@@ -229,7 +224,7 @@
             submit(){
                 let {
                     telphone,
-                    captchaNum,code,
+                    validCode,code,
                     province,alp,
                     plateNum,
                     //openId,
@@ -245,7 +240,7 @@
                     Toast('请填写有效的手机号码！');
                     return false;
                 }
-                if(!captchaNum.trim()){
+                if(!validCode.trim()){
                     Toast('请填写验证码！');
                     return false;
                 }
@@ -254,11 +249,6 @@
                     return false;
                 }
                 plateNum = ''+ province + alp + plateNum;
-                if(captchaNum != this.validCode){
-                    console.log(captchaNum,this.validCode)
-                    Toast('验证码输入有误！');
-                    return false;
-                }
                 Indicator.open({
                     spinnerType:'triple-bounce'
                 });
@@ -305,15 +295,6 @@
                         return null
                     }
                 })
-            },
-            //清除存储的验证码
-            clearValidCode(time){
-                if(this.timeOuter){
-                    clearTimeout(this.timeOuter);
-                }
-                this.timeOuter = setTimeout(()=>{
-                    this.validCode = 'XXXoooo9999';
-                },120000);
             },
             setAlphabet(){
                 let alp = '';
