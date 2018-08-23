@@ -258,6 +258,7 @@
                     code,
                     plateNum,
                     openId,
+                    validCode,
                     location//绑码的位置信息
                 };
                 $api.post('/user/code/bind',params).then(res => {
