@@ -9,7 +9,7 @@
             <img :src="data.THUMB_X">
         </div>
         <h5>{{data.SHORTTITLE}}</h5>
-        <div class="news-txt">{{data.CONTENT}}</div>
+        <div class="news-txt" v-html="data.CONTENT"></div>
     </div>
 </template>
 
