@@ -123,6 +123,7 @@
                 carType:'',
                 machineType:'',
                 avatar:'',
+                avatarKey:'',
 
                 provinceItems:[],
                 plateProvince:'',
@@ -247,7 +248,8 @@
             },
             imageuploaded(res){
                 if(res.code == '01'){
-                    this.avatar = res.data;
+                    this.avatar = res.data.avatar;
+                    this.avatarKey = res.data.avatarKey;
                     this.$refs.imgWrap.onload = ()=>{
                         this.upLoading = false;
                     }
@@ -271,7 +273,7 @@
                     machineType,
                     plateProvince, alp, plate,
                     province,city,area,
-                    avatar
+                    avatar,avatarKey
                 } = this;
                 if(this.avatarStatu == 'default'){
                     avatar = '';
@@ -311,7 +313,7 @@
                     plateNum, carType,
                     machineType,
                     province,city,area,
-                    avatar
+                    avatar,avatarKey
                 }).then(res => {
                     Indicator.close();
                     if(res.code == '01'){
