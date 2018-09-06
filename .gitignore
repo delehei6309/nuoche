@@ -2,6 +2,8 @@
 node_modules/
 .idea/
 data/
+dist/
+html/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
