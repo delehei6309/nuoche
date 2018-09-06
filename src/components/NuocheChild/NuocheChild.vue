@@ -34,7 +34,7 @@
                 <a v-if="virtual" :href="`tel:${virtual}`">
                     <button>拨打车主电话</button>
                 </a>
-                <a v-else href="javascript:void(0);" @click="getPhone(0)">
+                <a v-else href="javascript:void(0);" @click="dialing">
                     <button>拨打车主电话</button>
                 </a>
             </div>
@@ -76,7 +76,8 @@
         created(){
             this.addressInfor = JSON.parse(sessionStorage.getItem('addressInfor')) || {};
             this.code = this.$route.query.code;
-            this.getPhone(1);
+            //获取手机号
+            this.getPhone();
             
         },
         computed: {
@@ -89,8 +90,11 @@
                this.telphone = ''; 
                this.phoneShow = false;
             },
-            getPhone(isFirst){
-                
+            getPhone(){
+                if(this.virtual){
+                    //已经拿到号码了
+                    return this.virtual;
+                }
                 if(!this.code){
                     Toast('没有码我怎么取您的信息');
                     return false;
@@ -100,20 +104,31 @@
                 });
                 let location = this.addressInfor;
                 location = stringToByte(JSON.stringify(location));
-                $api.post(`/call/getVirtualCode`,{
+                alert('111')
+                return $api.post(`/call/getVirtualCode`,{
                     code:this.code,
                     location
                 }).then(res => {
                     Indicator.close();
                     if(res.code == '01'){
                         this.virtual = res.data;
-                        if(!isFirst){
-                            window.location.href = `tel:${res.data}`;
-                        }
+                        return res.data;
                     }else{
                         Toast( res.msg || '获取手机号失败！');
+                        return false;
                     }
                 })
+            },
+            dialing(){
+                if(this.virtual){
+                    window.location.href = `tel:${this.virtual}`;
+                }else{
+                    this.getPhone(res => {
+                        if(res){
+                            window.location.href = `tel:${res}`;
+                        }
+                    })
+                }
             },
             showTit(){
                 Toast('该车主设置了免打扰模式，请稍后再试！');

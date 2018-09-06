@@ -1,7 +1,7 @@
 <template>
     <div class="binding">
         <bind v-if="status == '02'" :addressInfor="addressInfor"></bind>
-        <nuoche-inform v-if="status == '01'" :plateNum="plateNum" :disturn="disturn"></nuoche-inform>
+        <!-- <nuoche-inform v-if="status == '01'" :plateNum="plateNum" :disturn="disturn"></nuoche-inform> -->
     </div>
 </template>
 
